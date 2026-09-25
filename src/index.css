@@ -1,0 +1,155 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #393e7f;
+  --color-primary-dark: #2c305f;
+  --color-primary-light: #565ca0;
+  --color-primary-soft: rgba(57, 62, 127, 0.1);
+  --color-dark: #101014;
+  --color-dark-soft: #17171d;
+  --color-dark-card: #1a1a22;
+  --color-navy: #0F172A;
+  --color-navy-light: #1E293B;
+  --color-light: #F8FAFC;
+  --color-paper: #fffef4;
+  --color-slate-50: #F8FAFC;
+  --color-slate-100: #F1F5F9;
+  --color-slate-200: #E2E8F0;
+  --color-slate-300: #CBD5E1;
+  --color-slate-400: #94A3B8;
+  --color-slate-500: #64748B;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Sofia Sans Condensed', 'Inter', sans-serif;
+  --font-mono: 'Spline Sans Mono', ui-monospace, monospace;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--color-navy);
+  background-color: var(--color-light);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+::selection {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+/* ===== Textures ===== */
+
+.bg-dots {
+  background-image: radial-gradient(rgba(57, 62, 127, 0.14) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+.bg-dots-light {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ===== Fluid typography ===== */
+
+.text-fluid-hero {
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  font-size: clamp(2.6rem, 8.5vw, 7.5rem);
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.text-fluid-section {
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  font-size: clamp(2rem, 5.5vw, 4.5rem);
+  line-height: 0.98;
+  text-transform: uppercase;
+}
+
+.text-fluid-display {
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  font-size: clamp(3rem, 11vw, 9rem);
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.text-outline {
+  -webkit-text-stroke: 1.5px var(--color-primary-light);
+  color: transparent;
+}
+
+/* ===== Section label (mono) ===== */
+
+.section-label {
+  font-family: var(--font-mono);
+  font-size: clamp(0.7rem, 1.2vw, 0.85rem);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
+/* ===== Reveal ===== */
+
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+
+.scroll-reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .scroll-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ===== Modal ===== */
+
+.modal-overlay {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; max-height: 0; }
+  to { opacity: 1; max-height: 500px; }
+}
