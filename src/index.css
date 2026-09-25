@@ -1,39 +1,33 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #393e7f;
-  --color-primary-dark: #2c305f;
-  --color-primary-light: #565ca0;
-  --color-primary-soft: rgba(57, 62, 127, 0.1);
-  --color-dark: #101014;
-  --color-dark-soft: #17171d;
-  --color-dark-card: #1a1a22;
-  --color-navy: #0F172A;
-  --color-navy-light: #1E293B;
-  --color-light: #F8FAFC;
-  --color-paper: #fffef4;
-  --color-slate-50: #F8FAFC;
-  --color-slate-100: #F1F5F9;
-  --color-slate-200: #E2E8F0;
-  --color-slate-300: #CBD5E1;
-  --color-slate-400: #94A3B8;
-  --color-slate-500: #64748B;
-  --color-slate-600: #475569;
-  --color-slate-700: #334155;
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-display: 'Sofia Sans Condensed', 'Inter', sans-serif;
-  --font-mono: 'Spline Sans Mono', ui-monospace, monospace;
-}
+  --color-primary: #2878ed;
+  --color-primary-dark: #1558bf;
+  --color-primary-light: #5b9cff;
+  --color-primary-soft: rgba(40, 120, 237, 0.1);
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+  --color-ink: #101d35;
+  --color-ink-soft: #162542;
+  --color-ink-card: #1b2d4d;
+
+  --color-dark: #101d35;
+  --color-dark-soft: #162542;
+  --color-dark-card: #1b2d4d;
+
+  --color-navy: #14213d;
+  --color-navy-light: #213554;
+  --color-light: #f5f8fc;
+  --color-paper: #ffffff;
+
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Nunito', 'Inter', system-ui, sans-serif;
+  --font-display: 'Sofia Sans Condensed', 'Inter', sans-serif;
+  --font-mono: 'Spline Sans Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 80px;
+  scroll-padding-top: 92px;
 }
 
 body {
@@ -45,9 +39,121 @@ body {
   overflow-x: hidden;
 }
 
+/* Fond inspiré d'une interface de tableau de bord : bleu très pâle, lumineux et discret. */
+.portfolio-background {
+  background-color: var(--color-light);
+  background-image:
+    radial-gradient(circle at 92% 7%, rgba(40, 120, 237, 0.11), transparent 22rem),
+    radial-gradient(circle at 5% 32%, rgba(112, 169, 255, 0.1), transparent 24rem),
+    linear-gradient(180deg, #f9fbfe 0%, #f3f7fc 55%, #f8faff 100%);
+}
+
+/* Thème clair par défaut : chaque section conserve sa structure, avec des surfaces
+   blanches, une hiérarchie bleu nuit et des actions bleues. */
+.portfolio-light {
+  color: var(--color-navy);
+}
+
+.portfolio-light [class*="bg-ink"] {
+  background-color: #ffffff !important;
+}
+
+.portfolio-light .text-white {
+  color: var(--color-navy);
+}
+
+.portfolio-light .text-outline {
+  -webkit-text-stroke: 2px rgba(20, 33, 61, 0.32);
+}
+
+.portfolio-light .bg-dots-light {
+  background-image: radial-gradient(rgba(40, 120, 237, 0.12) 1px, transparent 1px);
+}
+
+.portfolio-light .from-ink {
+  --tw-gradient-from: #ffffff var(--tw-gradient-from-position);
+}
+
+.portfolio-light .text-slate-300 {
+  color: #475569;
+}
+
+.portfolio-light .border-white\/10,
+.portfolio-light .border-white\/15,
+.portfolio-light .border-white\/20,
+.portfolio-light .border-white\/25,
+.portfolio-light .border-white\/30 {
+  border-color: rgb(226 232 240) !important;
+}
+
+.portfolio-light .bg-primary.text-white,
+.portfolio-light a.bg-primary .text-white,
+.portfolio-light button.bg-primary .text-white {
+  color: #ffffff;
+}
+
+.portfolio-light .hover\:text-white:hover {
+  color: var(--color-primary);
+}
+
+@media (prefers-color-scheme: dark) {
+  .portfolio-background {
+    background-color: #0d172a;
+    background-image:
+      radial-gradient(circle at 92% 7%, rgba(40, 120, 237, 0.22), transparent 22rem),
+      linear-gradient(180deg, #101d35 0%, #0d172a 100%);
+  }
+
+  .portfolio-light {
+    color: #f8fafc;
+  }
+
+  .portfolio-light [class*="bg-ink"],
+  .portfolio-light [class~="bg-light"],
+  .portfolio-light [class~="bg-paper"],
+  .portfolio-light [class~="bg-white"] {
+    background-color: #101d35 !important;
+  }
+
+  .portfolio-light .text-white,
+  .portfolio-light .text-navy {
+    color: #f8fafc;
+  }
+
+  .portfolio-light .text-slate-300 {
+    color: #cbd5e1;
+  }
+
+  .portfolio-light .text-outline {
+    -webkit-text-stroke-color: rgba(255, 255, 255, 0.48);
+  }
+
+  .portfolio-light .from-ink {
+    --tw-gradient-from: #101d35 var(--tw-gradient-from-position);
+  }
+
+  .portfolio-light .border-slate-200,
+  .portfolio-light .border-white\/10,
+  .portfolio-light .border-white\/15,
+  .portfolio-light .border-white\/20,
+  .portfolio-light .border-white\/25,
+  .portfolio-light .border-white\/30 {
+    border-color: rgba(148, 163, 184, 0.22) !important;
+  }
+
+  .portfolio-light .bg-primary.text-white {
+    color: #ffffff;
+  }
+}
+
 ::selection {
   background-color: var(--color-primary);
   color: white;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary-light);
+  outline-offset: 2px;
 }
 
 /* ===== Textures ===== */
@@ -62,24 +168,29 @@ body {
   background-size: 24px 24px;
 }
 
+.bg-grid-light {
+  background-image: linear-gradient(rgba(57, 62, 127, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(57, 62, 127, 0.07) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
 /* ===== Fluid typography ===== */
 
 .text-fluid-hero {
   font-family: var(--font-display);
   font-weight: 900;
   letter-spacing: -0.02em;
-  font-size: clamp(2.6rem, 8.5vw, 7.5rem);
-  line-height: 0.95;
+  font-size: clamp(2.8rem, 9vw, 7.5rem);
+  line-height: 0.92;
   text-transform: uppercase;
 }
 
 .text-fluid-section {
-  font-family: var(--font-display);
+  font-family: var(--font-heading);
   font-weight: 900;
-  letter-spacing: -0.01em;
-  font-size: clamp(2rem, 5.5vw, 4.5rem);
-  line-height: 0.98;
-  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  font-size: clamp(2rem, 5vw, 3.75rem);
+  line-height: 1.02;
 }
 
 .text-fluid-display {
@@ -92,7 +203,12 @@ body {
 }
 
 .text-outline {
-  -webkit-text-stroke: 1.5px var(--color-primary-light);
+  -webkit-text-stroke: 2px rgba(255, 255, 255, 0.5);
+  color: transparent;
+}
+
+.text-outline-dark {
+  -webkit-text-stroke: 2px rgba(57, 62, 127, 0.55);
   color: transparent;
 }
 
@@ -118,18 +234,71 @@ body {
   transform: translateY(0);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
+/* Révélation typographique ligne par ligne (clip-path) */
+.reveal-clip {
+  opacity: 1;
+  transform: none;
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-clip.revealed {
+  clip-path: inset(0 0 -15% 0);
+}
+
+/* Apparition au chargement (hero) */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
   }
-  .scroll-reveal {
+  to {
     opacity: 1;
-    transform: none;
-    transition: none;
+    transform: translateY(0);
   }
 }
 
-/* ===== Modal ===== */
+.rise {
+  opacity: 0;
+  animation: rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes floatY {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: floatY 5s ease-in-out infinite;
+}
+
+/* ===== Marquee ===== */
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 42s linear infinite;
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* ===== Modale ===== */
 
 .modal-overlay {
   animation: fadeIn 0.2s ease-out;
@@ -140,16 +309,44 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-@keyframes slideDown {
-  from { opacity: 0; max-height: 0; }
-  to { opacity: 1; max-height: 500px; }
+/* ===== Accessibilité / mouvement réduit ===== */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .scroll-reveal,
+  .reveal-clip,
+  .rise {
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+    transition: none;
+    animation: none;
+  }
+  .marquee-track {
+    animation: none;
+  }
+  .animate-float {
+    animation: none;
+  }
 }

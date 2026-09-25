@@ -1,63 +1,45 @@
 import { useState } from 'react'
-import { Mail, Phone, MapPin, Send, CheckCircle2, AlertCircle } from 'lucide-react'
+import { Mail, Phone, MapPin, Send, CheckCircle2, AlertCircle, ArrowUpRight } from 'lucide-react'
 import { GithubIcon, LinkedinIcon } from '../ui/BrandIcons'
 import { profile } from '../../data/profile'
 import SectionTitle from '../ui/SectionTitle'
-import Button from '../ui/Button'
 import useScrollReveal from '../../hooks/useScrollReveal'
 
-const initialForm = {
-  name: '',
-  email: '',
-  subject: '',
-  message: '',
-}
+const initialForm = { name: '', email: '', subject: '', message: '' }
+const initialErrors = { name: '', email: '', subject: '', message: '' }
 
-const initialErrors = {
-  name: '',
-  email: '',
-  subject: '',
-  message: '',
-}
+const networks = [
+  {
+    label: 'Email',
+    handle: profile.contact.email,
+    href: `mailto:${profile.contact.email}`,
+    icon: Mail,
+  },
+  {
+    label: 'GitHub',
+    handle: '@JulioEdwin',
+    href: profile.contact.github,
+    icon: GithubIcon,
+  },
+  {
+    label: 'LinkedIn',
+    handle: 'Julio Edwin RAZAFIMANAMPY',
+    href: profile.contact.linkedin,
+    icon: LinkedinIcon,
+  },
+  {
+    label: 'WhatsApp',
+    handle: profile.contact.phone,
+    href: profile.contact.whatsapp,
+    icon: Phone,
+  },
+]
 
 const Contact = () => {
   const ref = useScrollReveal()
   const [form, setForm] = useState(initialForm)
   const [errors, setErrors] = useState(initialErrors)
   const [status, setStatus] = useState(null)
-
-  const contactInfo = [
-    {
-      icon: Mail,
-      label: 'Email',
-      value: profile.contact.email,
-      href: `mailto:${profile.contact.email}`,
-    },
-    {
-      icon: Phone,
-      label: 'Téléphone',
-      value: profile.contact.phone,
-      href: `tel:${profile.contact.phone.replace(/[^+\d]/g, '')}`,
-    },
-    {
-      icon: MapPin,
-      label: 'Localisation',
-      value: profile.contact.location,
-      href: null,
-    },
-    {
-      icon: GithubIcon,
-      label: 'GitHub',
-      value: 'github.com/JulioEdwin',
-      href: profile.contact.github,
-    },
-    {
-      icon: LinkedinIcon,
-      label: 'LinkedIn',
-      value: profile.contact.linkedin,
-      href: profile.contact.linkedin,
-    },
-  ]
 
   const validate = (field) => {
     const value = form[field].trim()
@@ -66,7 +48,7 @@ const Contact = () => {
     if (field === 'name' && !value) {
       newErrors.name = 'Votre nom est obligatoire.'
     } else if (field === 'email' && !value) {
-      newErrors.email = "Votre email est obligatoire."
+      newErrors.email = 'Votre email est obligatoire.'
     } else if (field === 'email' && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
       newErrors.email = 'Veuillez saisir un email valide.'
     } else if (field === 'subject' && !value) {
@@ -102,10 +84,13 @@ const Contact = () => {
       const value = form[field].trim()
       if (!value) {
         newErrors[field] =
-          field === 'name' ? 'Votre nom est obligatoire.'
-          : field === 'email' ? "Votre email est obligatoire."
-          : field === 'subject' ? 'Le sujet est obligatoire.'
-          : 'Votre message est obligatoire.'
+          field === 'name'
+            ? 'Votre nom est obligatoire.'
+            : field === 'email'
+              ? 'Votre email est obligatoire.'
+              : field === 'subject'
+                ? 'Le sujet est obligatoire.'
+                : 'Votre message est obligatoire.'
       } else if (field === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
         newErrors.email = 'Veuillez saisir un email valide.'
       } else if (field === 'message' && value.length < 10) {
@@ -127,84 +112,95 @@ const Contact = () => {
 
   const inputBase =
     'w-full px-4 py-3 rounded-lg border bg-white text-navy placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors'
-
   const inputNormal = 'border-slate-200 hover:border-slate-300'
   const inputError = 'border-red-400 focus:ring-red-200'
 
   return (
-    <section id="contact" className="relative py-24 md:py-36 bg-white overflow-hidden">
-      <div ref={ref} className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="contact" className="relative bg-light overflow-hidden">
+      <div className="absolute inset-0 bg-grid-light" aria-hidden="true" />
+
+      <div ref={ref} className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-36">
         <div className="scroll-reveal">
           <SectionTitle
-            num={10}
             eyebrow="contact"
-            title="Travaillons ensemble"
-            subtitle="Vous avez un projet, une opportunité de stage, un emploi ou simplement une idée à discuter ? N'hésitez pas à me contacter."
-            align="left"
+            title="Restons en contact"
+            description="Toujours ouvert pour échanger autour de belles problématiques d'architecture, de nouveaux défis backend ou d'opportunités de collaboration."
           />
         </div>
 
-        <div className="scroll-reveal grid md:grid-cols-2 gap-5 mb-14">
-          <a
-            href={`mailto:${profile.contact.email}`}
-            className="group bg-white border border-slate-200 rounded-2xl p-8 md:p-10 shadow-sm hover:border-primary/60 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300"
-          >
-            <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-primary mb-6">
-              discutons / email
-            </p>
-            <h3 className="font-display font-bold text-4xl md:text-5xl text-navy group-hover:text-primary transition-colors mb-3 tracking-tight">
-              Discuter
-            </h3>
-            <p className="text-sm text-slate-500 leading-relaxed">
-              Une question, une idée, une opportunité ? Écrivez-moi, je réponds dès que possible.
-            </p>
-          </a>
-
-          <button
-            type="button"
-            onClick={() =>
-              document.getElementById('formulaire')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-            }
-            className="group text-left bg-white border border-slate-200 rounded-2xl p-8 md:p-10 shadow-sm hover:border-primary/60 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300"
-          >
-            <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-primary mb-6">
-              envoyons / message
-            </p>
-            <h3 className="font-display font-bold text-4xl md:text-5xl text-navy group-hover:text-primary transition-colors mb-3 tracking-tight">
-              Nous écrire
-            </h3>
-            <p className="text-sm text-slate-500 leading-relaxed">
-              Prêt à lancer un projet ? Envoyez-moi les détails via le formulaire de contact.
-            </p>
-          </button>
-        </div>
-
-        <div className="grid lg:grid-cols-5 gap-10 lg:gap-12 items-start">
-          <div className="scroll-reveal lg:col-span-2 space-y-4">
-            <h3 className="text-lg font-semibold text-navy mb-1">Mes coordonnées</h3>
-            {contactInfo.map(({ icon: Icon, label, value, href }) => (
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-start">
+          <div className="scroll-reveal space-y-8">
+            <div>
+              <p className="section-label text-primary mb-4">— écrivez-moi</p>
               <a
-                key={label}
-                href={href || '#'}
-                target={href && href.startsWith('http') ? '_blank' : undefined}
-                rel={href && href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                className={`flex items-start gap-4 p-4 rounded-xl bg-slate-50 border border-slate-200 transition-all duration-200 ${
-                  href ? 'hover:border-primary hover:shadow-sm' : 'cursor-default'
-                }`}
+                href={`mailto:${profile.contact.email}`}
+                className="block font-display font-black uppercase leading-none text-[clamp(1.5rem,4vw,2.75rem)] text-navy hover:text-primary transition-colors break-words"
               >
-                <span className="w-10 h-10 bg-primary/10 text-primary rounded-lg flex items-center justify-center shrink-0">
-                  <Icon size={18} />
-                </span>
-                <div>
-                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">{label}</p>
-                  <p className="text-sm font-medium text-navy break-all">{value}</p>
-                </div>
+                {profile.contact.email}
               </a>
-            ))}
+              <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-slate-500">
+                <a
+                  href={`tel:${profile.contact.phone.replace(/[^+\d]/g, '')}`}
+                  className="inline-flex items-center gap-2 hover:text-primary transition-colors"
+                >
+                  <Phone size={15} className="text-primary" />
+                  {profile.contact.phone}
+                </a>
+                <span className="inline-flex items-center gap-2">
+                  <MapPin size={15} className="text-primary" />
+                  {profile.contact.location}
+                </span>
+              </div>
+            </div>
+
+            <ul className="grid sm:grid-cols-2 gap-4">
+              {networks.map(({ label, handle, href, icon: Icon }) => (
+                <li key={label}>
+                  <a
+                    href={href}
+                    target={href.startsWith('http') ? '_blank' : undefined}
+                    rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                    className="group flex items-start justify-between gap-3 h-full bg-white border border-slate-200 rounded-2xl p-5 hover:border-primary/60 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300"
+                  >
+                    <div>
+                      <span className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 text-primary mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
+                        <Icon size={18} />
+                      </span>
+                      <p className="font-heading font-extrabold text-navy">{label}</p>
+                      <p className="font-mono text-[11px] text-slate-400 break-all">{handle}</p>
+                    </div>
+                    <ArrowUpRight
+                      size={16}
+                      className="text-slate-300 group-hover:text-primary transition-colors shrink-0"
+                    />
+                  </a>
+                </li>
+              ))}
+            </ul>
+
+            <div className="flex items-center gap-3 px-5 py-4 bg-white border border-slate-200 rounded-2xl">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" aria-hidden="true" />
+              <p className="text-sm text-slate-600">
+                <span className="font-semibold text-navy">{profile.availability}</span> — je réponds
+                généralement sous 24 h.
+              </p>
+            </div>
           </div>
 
-          <div className="scroll-reveal lg:col-span-3">
-            <form id="formulaire" onSubmit={handleSubmit} className="bg-slate-50 border border-slate-200 rounded-2xl p-6 md:p-8 space-y-5" noValidate>
+          <div className="scroll-reveal" style={{ transitionDelay: '120ms' }}>
+            <form
+              id="formulaire"
+              onSubmit={handleSubmit}
+              className="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm space-y-5"
+              noValidate
+            >
+              <div className="flex items-center justify-between mb-1">
+                <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-primary">
+                  envoyons / message
+                </p>
+                <span className="font-display font-black text-primary/30 text-lg">01</span>
+              </div>
+
               <div className="grid sm:grid-cols-2 gap-5">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-navy mb-1.5">
@@ -313,10 +309,13 @@ const Contact = () => {
                 </div>
               )}
 
-              <Button type="submit" variant="primary" size="lg" className="w-full sm:w-auto">
+              <button
+                type="submit"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary-dark transition-colors shadow-sm shadow-primary/25 cursor-pointer"
+              >
                 <Send size={18} />
                 Envoyer le message
-              </Button>
+              </button>
             </form>
           </div>
         </div>

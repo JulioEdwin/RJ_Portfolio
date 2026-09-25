@@ -1,40 +1,48 @@
 import Navbar from './components/layout/Navbar'
-import Sidebar from './components/layout/Sidebar'
 import Footer from './components/layout/Footer'
 import ScrollToTop from './components/ui/ScrollToTop'
+import Marquee from './components/ui/Marquee'
 import Hero from './components/sections/Hero'
+import Manifesto from './components/sections/Manifesto'
 import About from './components/sections/About'
 import Skills from './components/sections/Skills'
-import Projects from './components/sections/Projects'
-import Experience from './components/sections/Experience'
-import Education from './components/sections/Education'
-import Certifications from './components/sections/Certifications'
 import Services from './components/sections/Services'
-import Process from './components/sections/Process'
+import Projects from './components/sections/Projects'
+import Parcours from './components/sections/Parcours'
+import Certifications from './components/sections/Certifications'
 import Interests from './components/sections/Interests'
 import Contact from './components/sections/Contact'
 
+const contactMarquee = [
+  'Développeur Full Stack',
+  'React',
+  'TypeScript',
+  'Next.js',
+  'Spring Boot',
+  'PostgreSQL',
+  'Flutter',
+  'Docker',
+  'Disponible pour stage',
+]
+
 const App = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-light text-navy">
-      <Sidebar />
-      <div className="xl:pl-64 flex flex-col flex-1">
-        <Navbar />
-        <main className="flex-1">
-          <Hero />
-          <About />
-          <Skills />
-          <Projects />
-          <Experience />
-          <Education />
-          <Certifications />
-          <Services />
-          <Process />
-          <Interests />
-          <Contact />
-        </main>
-        <Footer />
-      </div>
+    <div className="portfolio-background portfolio-light min-h-screen flex flex-col text-navy">
+      <Navbar />
+      <main className="flex-1">
+        <Hero />
+        <Manifesto />
+        <About />
+        <Skills />
+        <Services />
+        <Projects />
+        <Parcours />
+        <Certifications />
+        <Interests />
+        <Marquee dark items={contactMarquee} />
+        <Contact />
+      </main>
+      <Footer />
       <ScrollToTop />
     </div>
   )
