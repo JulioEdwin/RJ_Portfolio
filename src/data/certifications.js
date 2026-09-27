@@ -28,7 +28,7 @@ export const certifications = [
     issuer: 'Nordic Institute for Interoperability Solutions (NIIS)',
     date: '2026',
     detail: "Développement de services d'interopérabilité sur la plateforme X-Road.",
-    file: '/certifications/x-road-service-developer.pdf',
+    file: `${import.meta.env.BASE_URL}certifications/x-road-service-developer.pdf`,
     verified: true,
   },
   {
@@ -36,7 +36,7 @@ export const certifications = [
     issuer: 'Forage',
     date: '2026',
     detail: "Conception et analyse d'une simulation de phishing.",
-    file: '/certifications/forage-cybersecurity.pdf',
+    file: `${import.meta.env.BASE_URL}certifications/forage-cybersecurity.pdf`,
     verified: true,
   },
   {
@@ -44,7 +44,7 @@ export const certifications = [
     issuer: 'Forage',
     date: '2026',
     detail: "Analyse des besoins clients et conception d'une solution.",
-    file: '/certifications/forage-solutions-architecture.pdf',
+    file: `${import.meta.env.BASE_URL}certifications/forage-solutions-architecture.pdf`,
     verified: true,
   },
 ]

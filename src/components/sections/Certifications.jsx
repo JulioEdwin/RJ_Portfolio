@@ -65,7 +65,7 @@ const CertModal = ({ cert, onClose }) => {
 
         <div className="flex flex-wrap items-center justify-between gap-3 px-5 sm:px-6 py-4 border-t border-white/10">
           <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-slate-500 truncate">
-            {cert.file.replace('/certifications/', '')}
+            {cert.file.split('/').pop()}
           </span>
           <div className="flex flex-wrap gap-2.5">
             <a
