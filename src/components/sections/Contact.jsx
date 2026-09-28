@@ -1,5 +1,14 @@
-import { useState } from 'react'
-import { Mail, Phone, MapPin, Send, CheckCircle2, AlertCircle, ArrowUpRight } from 'lucide-react'
+import { useRef, useState } from 'react'
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Send,
+  CheckCircle2,
+  AlertCircle,
+  ArrowUpRight,
+  Loader2,
+} from 'lucide-react'
 import { GithubIcon, LinkedinIcon } from '../ui/BrandIcons'
 import { profile } from '../../data/profile'
 import SectionTitle from '../ui/SectionTitle'
@@ -7,6 +16,14 @@ import useScrollReveal from '../../hooks/useScrollReveal'
 
 const initialForm = { name: '', email: '', subject: '', message: '' }
 const initialErrors = { name: '', email: '', subject: '', message: '' }
+
+// Web3Forms : service d'envoi d'emails sans backend (doc officielle).
+// La clé d'accès est publique par conception, injectée via .env.local / CI.
+const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit'
+const ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY
+const SUBMIT_TIMEOUT_MS = 15000
+const NETWORK_ERROR_MESSAGE =
+  'Une erreur est survenue lors de l’envoi. Vérifiez votre connexion et réessayez.'
 
 const networks = [
   {
@@ -37,9 +54,12 @@ const networks = [
 
 const Contact = () => {
   const ref = useScrollReveal()
+  const formRef = useRef(null)
+  const submittingRef = useRef(false)
   const [form, setForm] = useState(initialForm)
   const [errors, setErrors] = useState(initialErrors)
   const [status, setStatus] = useState(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const validate = (field) => {
     const value = form[field].trim()
@@ -76,8 +96,11 @@ const Contact = () => {
     validate(e.target.name)
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+
+    // Protection anti-doublon : garde synchrone (état React non rafraîchi encore).
+    if (submittingRef.current || isSubmitting) return
 
     const newErrors = {}
     Object.keys(form).forEach((field) => {
@@ -105,9 +128,67 @@ const Contact = () => {
       return
     }
 
-    setStatus({ type: 'success', message: 'Votre message a bien été envoyé. Merci !' })
-    setForm(initialForm)
-    setErrors(initialErrors)
+    if (!ACCESS_KEY) {
+      console.error(
+        '[Contact] VITE_WEB3FORMS_ACCESS_KEY manquante : renseignez .env.local puis relancez le build.'
+      )
+      setStatus({
+        type: 'error',
+        message: 'L’envoi n’est pas encore configuré pour le moment. Réessayez plus tard.',
+      })
+      return
+    }
+
+    submittingRef.current = true
+    setIsSubmitting(true)
+    setStatus(null)
+
+    const formData = new FormData(formRef.current)
+    formData.set('access_key', ACCESS_KEY)
+    formData.set('subject', `Nouveau message depuis le portfolio — ${form.subject}`)
+    formData.set('replyto', form.email)
+    formData.set('from_name', 'RJ Portfolio')
+
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), SUBMIT_TIMEOUT_MS)
+
+    try {
+      const response = await fetch(WEB3FORMS_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(Object.fromEntries(formData)),
+        signal: controller.signal,
+      })
+
+      const data = await response.json().catch(() => null)
+
+      if (response.ok && data?.success) {
+        setStatus({
+          type: 'success',
+          message:
+            'Message envoyé avec succès ✓ — Merci pour votre message, je reviens vers vous dès que possible.',
+        })
+        setForm(initialForm)
+        setErrors(initialErrors)
+      } else {
+        // Détails techniques réservés à la console, l'utilisateur reçoit un message humain.
+        console.error('[Contact] Web3Forms', response.status, data)
+        setStatus({
+          type: 'error',
+          message:
+            response.status === 429
+              ? 'Trop de messages envoyés en peu de temps. Réessayez dans quelques instants.'
+              : NETWORK_ERROR_MESSAGE,
+        })
+      }
+    } catch (error) {
+      console.error('[Contact] Échec de l’envoi', error)
+      setStatus({ type: 'error', message: NETWORK_ERROR_MESSAGE })
+    } finally {
+      clearTimeout(timeoutId)
+      submittingRef.current = false
+      setIsSubmitting(false)
+    }
   }
 
   const inputBase =
@@ -128,7 +209,9 @@ const Contact = () => {
           />
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-start">
+        {/* grid-cols-1 : borne la piste mobile à 0 min, sinon le long email de la
+            colonne gauche élargit la grille et fait déborder le formulaire. */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-start">
           <div className="scroll-reveal space-y-8">
             <div>
               <p className="section-label text-primary mb-4">— écrivez-moi</p>
@@ -190,10 +273,22 @@ const Contact = () => {
           <div className="scroll-reveal" style={{ transitionDelay: '120ms' }}>
             <form
               id="formulaire"
+              ref={formRef}
               onSubmit={handleSubmit}
+              aria-busy={isSubmitting}
               className="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm space-y-5"
               noValidate
             >
+              {/* Honeypot Web3Forms : invisible pour les visiteurs, rempli par les bots. */}
+              <input
+                type="checkbox"
+                name="botcheck"
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                className="hidden"
+                style={{ display: 'none' }}
+              />
               <div className="flex items-center justify-between mb-1">
                 <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-primary">
                   envoyons / message
@@ -214,6 +309,8 @@ const Contact = () => {
                     onChange={handleChange}
                     onBlur={handleBlur}
                     placeholder="Votre nom"
+                    autoComplete="name"
+                    required
                     aria-invalid={!!errors.name}
                     aria-describedby={errors.name ? 'name-error' : undefined}
                     className={`${inputBase} ${errors.name ? inputError : inputNormal}`}
@@ -237,6 +334,8 @@ const Contact = () => {
                     onChange={handleChange}
                     onBlur={handleBlur}
                     placeholder="vous@exemple.com"
+                    autoComplete="email"
+                    required
                     aria-invalid={!!errors.email}
                     aria-describedby={errors.email ? 'email-error' : undefined}
                     className={`${inputBase} ${errors.email ? inputError : inputNormal}`}
@@ -261,6 +360,7 @@ const Contact = () => {
                   onChange={handleChange}
                   onBlur={handleBlur}
                   placeholder="Objet de votre message"
+                  required
                   aria-invalid={!!errors.subject}
                   aria-describedby={errors.subject ? 'subject-error' : undefined}
                   className={`${inputBase} ${errors.subject ? inputError : inputNormal}`}
@@ -284,6 +384,7 @@ const Contact = () => {
                   onChange={handleChange}
                   onBlur={handleBlur}
                   placeholder="Votre message..."
+                  required
                   aria-invalid={!!errors.message}
                   aria-describedby={errors.message ? 'message-error' : undefined}
                   className={`${inputBase} resize-y ${errors.message ? inputError : inputNormal}`}
@@ -303,6 +404,7 @@ const Contact = () => {
                       : 'bg-red-50 text-red-700 border border-red-200'
                   }`}
                   role="status"
+                  aria-live="polite"
                 >
                   {status.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
                   {status.message}
@@ -311,10 +413,21 @@ const Contact = () => {
 
               <button
                 type="submit"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary-dark transition-colors shadow-sm shadow-primary/25 cursor-pointer"
+                disabled={isSubmitting}
+                aria-busy={isSubmitting}
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary-dark transition-colors shadow-sm shadow-primary/25 cursor-pointer disabled:opacity-70 disabled:cursor-wait disabled:hover:bg-primary"
               >
-                <Send size={18} />
-                Envoyer le message
+                {isSubmitting ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    Envoi en cours…
+                  </>
+                ) : (
+                  <>
+                    <Send size={18} />
+                    Envoyer le message
+                  </>
+                )}
               </button>
             </form>
           </div>
