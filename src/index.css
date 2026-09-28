@@ -96,6 +96,52 @@ body {
   color: var(--color-primary);
 }
 
+/* ===== Lisibilité en mode clair (contraste WCAG AA) =====
+   Les gris et bleus du thème sombre sont trop pâles sur surfaces blanches :
+   on assombrit ici les couleurs de texte. Le mode sombre garde ses valeurs. */
+@media (prefers-color-scheme: light) {
+  .portfolio-light {
+    --color-primary: #125fd3;
+    --color-primary-dark: #0f4ca9;
+    --color-primary-light: #1157c0;
+  }
+
+  .portfolio-light .text-slate-400 {
+    color: #5c6b85;
+  }
+
+  .portfolio-light .placeholder\:text-slate-400::placeholder {
+    color: #5c6b85;
+  }
+
+  .portfolio-light .text-slate-500 {
+    color: #566580;
+  }
+
+  .portfolio-light .text-emerald-400,
+  .portfolio-light .text-emerald-600 {
+    color: #15803d;
+  }
+
+  /* Numéraux décoratifs : assez d'opacité pour rester lisibles. */
+  .portfolio-light .text-primary\/25,
+  .portfolio-light .text-primary\/50 {
+    color: rgb(18 95 211 / 0.75);
+  }
+
+  .portfolio-light .text-primary\/30 {
+    color: var(--color-primary);
+  }
+
+  .portfolio-light .text-white\/10 {
+    color: rgb(20 33 61 / 0.5);
+  }
+
+  .portfolio-light .group-hover\:text-white\/20 {
+    color: rgb(20 33 61 / 0.62);
+  }
+}
+
 @media (prefers-color-scheme: dark) {
   .portfolio-background {
     background-color: #0d172a;
