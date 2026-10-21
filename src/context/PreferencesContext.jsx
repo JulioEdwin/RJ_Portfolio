@@ -10,7 +10,7 @@ const STORAGE_KEYS = {
 
 const DEFAULT_PREFERENCES = {
   language: 'fr',
-  theme: 'dark', // 'dark' | 'light' | 'system'
+  theme: 'system', // default: respect OS preference; 'dark' | 'light' | 'system'
   motion: 'full', // 'full' | 'reduced'
   density: 'comfortable', // 'comfortable' | 'compact'
 }
