@@ -1,184 +1,172 @@
-import { useState, useEffect } from 'react'
-import { Award, FileText, ExternalLink, BadgeCheck, X, Download, Mail } from 'lucide-react'
+import React, { useState } from 'react'
+import {
+  Award,
+  FileText,
+  ExternalLink,
+  BadgeCheck,
+  Download,
+  Mail,
+} from 'lucide-react'
 import { certifications } from '../../data/certifications'
 import { profile } from '../../data/profile'
-import SectionTitle from '../ui/SectionTitle'
+import SectionHeader from '../common/SectionHeader'
+import Modal from '../common/Modal'
+import Card from '../common/Card'
+import Button from '../common/Button'
 import useScrollReveal from '../../hooks/useScrollReveal'
+import { usePreferences } from '../../context/PreferencesContext'
 
-const CertModal = ({ cert, onClose }) => {
-  // Verrouille le scroll uniquement quand la modale est réellement ouverte :
-  // sans ce garde-fou, body.overflow: hidden bloquerait le scroll du site entier.
-  useEffect(() => {
-    if (!cert) return undefined
-
-    const handleKey = (e) => {
-      if (e.key === 'Escape') onClose()
-    }
-    document.addEventListener('keydown', handleKey)
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.removeEventListener('keydown', handleKey)
-      document.body.style.overflow = ''
-    }
-  }, [cert, onClose])
-
-  if (!cert) return null
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6 modal-overlay"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-label={`Certificat : ${cert.title}`}
-    >
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
-      <div
-        className="relative bg-ink-soft w-full sm:max-w-4xl max-h-[92vh] sm:rounded-2xl rounded-t-2xl overflow-hidden shadow-2xl modal-content border border-white/10 flex flex-col"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between gap-4 px-5 sm:px-6 py-4 border-b border-white/10">
-          <div className="min-w-0">
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-primary-light mb-1 truncate">
-              {cert.issuer} — {cert.date}
-            </p>
-            <h3 className="font-heading font-extrabold text-base sm:text-lg text-white truncate">
-              {cert.title}
-            </h3>
-          </div>
-          <button
-            onClick={onClose}
-            aria-label="Fermer"
-            className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors shrink-0 cursor-pointer"
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        <div className="flex-1 min-h-0 bg-black/40">
-          <iframe
-            src={cert.file}
-            title={`Aperçu du certificat : ${cert.title}`}
-            className="w-full h-full min-h-[52vh] border-0"
-          />
-        </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-3 px-5 sm:px-6 py-4 border-t border-white/10">
-          <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-slate-500 truncate">
-            {cert.file.split('/').pop()}
-          </span>
-          <div className="flex flex-wrap gap-2.5">
-            <a
-              href={cert.file}
-              download
-              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg bg-primary text-white hover:bg-primary-dark transition-colors"
-            >
-              <Download size={14} />
-              Télécharger
-            </a>
-            <a
-              href={cert.file}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg border border-white/25 text-white hover:bg-white/10 transition-all"
-            >
-              Nouvel onglet
-              <ExternalLink size={13} className="opacity-70" />
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
+/**
+ * Section Reconnaissances & Certifications.
+ * Règle de Génie Logiciel : 3 couleurs max, A11y, support multi-formats (PDF & Images), bilingue.
+ */
 const Certifications = () => {
   const ref = useScrollReveal()
+  const { t } = usePreferences()
   const [selectedCert, setSelectedCert] = useState(null)
 
   const requestUrl = (cert) =>
     `mailto:${profile.contact.email}?subject=${encodeURIComponent(
       `Demande d'attestation — ${cert.title}`
     )}&body=${encodeURIComponent(
-      `Bonjour,\n\nJe souhaiterais recevoir une copie de mon attestation « ${cert.title} » (${cert.issuer}, ${cert.date}).\n\nMerci d'avance.`
+      `Bonjour Julio Edwin,\n\nJe souhaiterais obtenir une copie de votre attestation « ${cert.title} » émise par ${cert.issuer} (${cert.date}).\n\nCordialement.`
     )}`
 
-  return (
-    <section id="certifications" className="relative bg-ink overflow-hidden">
-      <div className="absolute inset-0 bg-dots-light" aria-hidden="true" />
-      <div
-        className="absolute top-20 -right-40 w-[400px] h-[400px] bg-primary/15 rounded-full blur-3xl"
-        aria-hidden="true"
-      />
+  const isPdf = selectedCert?.file?.toLowerCase().endsWith('.pdf')
 
-      <div ref={ref} className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-36">
+  return (
+    <section id="certifications" className="relative bg-slate-950 py-24 md:py-32 overflow-hidden border-t border-slate-900">
+      <div className="absolute inset-0 bg-tech-grid opacity-30 pointer-events-none" aria-hidden="true" />
+
+      <div ref={ref} className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
         <div className="scroll-reveal">
-          <SectionTitle
-            dark
-            eyebrow="certifications & attestations"
-            title="Reconnaissances"
-            description="Des certifications et attestations obtenues auprès d'organismes reconnus — Codefinity, Orange Digital Center, X-Road® et Forage."
+          <SectionHeader
+            eyebrow={t.certifications.eyebrow}
+            title={t.certifications.title}
+            description={t.certifications.description}
           />
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {certifications.map((cert, index) => (
             <div
               key={cert.title}
               className="scroll-reveal"
               style={{ transitionDelay: `${(index % 3) * 70}ms` }}
             >
-              <article className="group h-full bg-ink-card border border-white/10 rounded-2xl p-6 flex flex-col hover:border-primary/60 hover:shadow-lg hover:shadow-primary/10 transition-all duration-300">
-                <div className="flex items-start justify-between mb-5">
-                  <span className="w-11 h-11 bg-primary/20 text-primary-light rounded-xl flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
-                    <Award size={22} />
-                  </span>
-                  {cert.verified && (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold uppercase tracking-[0.14em]">
-                      <BadgeCheck size={13} />
-                      Vérifié
+              <Card className="h-full flex flex-col justify-between">
+                <div>
+                  <div className="flex items-start justify-between mb-4">
+                    <span className="w-11 h-11 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center border border-blue-500/20">
+                      <Award size={20} />
                     </span>
-                  )}
+
+                    {cert.verified && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-400 font-mono text-[10px] uppercase tracking-wider font-semibold border border-blue-500/20">
+                        <BadgeCheck size={12} />
+                        {t.certifications.verified}
+                      </span>
+                    )}
+                  </div>
+
+                  <h3 className="font-sans font-bold text-base text-white mb-1.5">
+                    {cert.title}
+                  </h3>
+                  <p className="font-mono text-xs text-blue-400 mb-3">
+                    {cert.issuer}
+                  </p>
+                  <p className="text-xs sm:text-sm text-slate-400 leading-relaxed mb-6">
+                    {cert.detail}
+                  </p>
                 </div>
 
-                <h3 className="font-heading font-extrabold text-base text-white leading-snug mb-1.5">
-                  {cert.title}
-                </h3>
-                <p className="text-sm text-primary-light mb-3">{cert.issuer}</p>
-                <p className="text-sm text-slate-400 leading-relaxed flex-1 mb-5">{cert.detail}</p>
-
-                <div className="pt-4 border-t border-white/10 flex items-center justify-between gap-3">
-                  <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-slate-500">
+                <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between gap-3">
+                  <span className="font-mono text-xs text-slate-400">
                     {cert.date}
                   </span>
 
                   {cert.file ? (
                     <button
+                      type="button"
                       onClick={() => setSelectedCert(cert)}
-                      className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg border border-white/25 text-white hover:bg-white/10 transition-all cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs font-semibold text-slate-200 hover:text-white hover:border-blue-500/50 hover:bg-slate-800 transition-all cursor-pointer"
                     >
-                      <FileText size={14} />
-                      Voir le certificat
-                      <ExternalLink size={12} className="opacity-70" />
+                      <FileText size={14} className="text-blue-400" />
+                      <span>{t.certifications.viewBtn}</span>
                     </button>
                   ) : (
                     <a
                       href={requestUrl(cert)}
-                      className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg border border-dashed border-white/25 text-slate-400 hover:text-white hover:border-primary transition-all"
-                      title="Demander une copie de l'attestation par e-mail"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dashed border-slate-800 text-slate-400 text-xs hover:text-white hover:border-blue-500 transition-colors"
+                      title="Demander une copie par email"
                     >
-                      <Mail size={14} />
-                      copie sur demande
+                      <Mail size={13} />
+                      <span>{t.certifications.onRequest}</span>
                     </a>
                   )}
                 </div>
-              </article>
+              </Card>
             </div>
           ))}
         </div>
       </div>
 
-      <CertModal cert={selectedCert} onClose={() => setSelectedCert(null)} />
+      {/* Modale d'aperçu de certificat (PDF ou Image) */}
+      {selectedCert && (
+        <Modal
+          isOpen={Boolean(selectedCert)}
+          onClose={() => setSelectedCert(null)}
+          title={selectedCert.title}
+          subtitle={`// ${selectedCert.issuer} — ${selectedCert.date}`}
+          maxWidth="max-w-4xl"
+        >
+          <div className="space-y-4">
+            <div className="w-full min-h-[50vh] max-h-[65vh] rounded-xl overflow-hidden border border-slate-800 bg-slate-950 flex items-center justify-center p-3">
+              {isPdf ? (
+                <iframe
+                  src={selectedCert.file}
+                  title={`Aperçu PDF de l'attestation ${selectedCert.title}`}
+                  className="w-full h-[55vh] border-0"
+                />
+              ) : (
+                <img
+                  src={selectedCert.file}
+                  alt={`Aperçu de l'attestation ${selectedCert.title}`}
+                  className="max-w-full max-h-[60vh] object-contain rounded-lg shadow-2xl"
+                  loading="lazy"
+                />
+              )}
+            </div>
+
+            <div className="pt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-800">
+              <span className="font-mono text-xs text-slate-400 truncate max-w-xs">
+                {selectedCert.file.split('/').pop()}
+              </span>
+
+              <div className="flex items-center gap-3">
+                <Button
+                  href={selectedCert.file}
+                  variant="primary"
+                  size="sm"
+                  icon={Download}
+                  download
+                >
+                  {isPdf ? t.certifications.downloadPdf : t.certifications.downloadDoc}
+                </Button>
+                <Button
+                  href={selectedCert.file}
+                  variant="outlineLight"
+                  size="sm"
+                  iconRight={ExternalLink}
+                  target="_blank"
+                >
+                  {t.certifications.fullscreen}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Modal>
+      )}
     </section>
   )
 }

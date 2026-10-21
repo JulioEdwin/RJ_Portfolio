@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import {
   Mail,
   Phone,
@@ -6,77 +6,82 @@ import {
   Send,
   CheckCircle2,
   AlertCircle,
-  ArrowUpRight,
-  Loader2,
+  Copy,
+  Check,
+  ExternalLink,
+  MessageSquare,
 } from 'lucide-react'
-import { GithubIcon, LinkedinIcon } from '../ui/BrandIcons'
+import { GithubIcon, LinkedinIcon } from '../common/BrandIcons'
 import { profile } from '../../data/profile'
-import SectionTitle from '../ui/SectionTitle'
+import SectionHeader from '../common/SectionHeader'
+import Card from '../common/Card'
+import Button from '../common/Button'
+import Toast from '../common/Toast'
+import { useClipboard } from '../../hooks/useClipboard'
 import useScrollReveal from '../../hooks/useScrollReveal'
+import { usePreferences } from '../../context/PreferencesContext'
 
 const initialForm = { name: '', email: '', subject: '', message: '' }
 const initialErrors = { name: '', email: '', subject: '', message: '' }
 
-// Web3Forms : service d'envoi d'emails sans backend (doc officielle).
-// La clé d'accès est publique par conception, injectée via .env.local / CI.
 const WEB3FORMS_ENDPOINT = 'https://api.web3forms.com/submit'
 const ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY
 const SUBMIT_TIMEOUT_MS = 15000
-const NETWORK_ERROR_MESSAGE =
-  'Une erreur est survenue lors de l’envoi. Vérifiez votre connexion et réessayez.'
 
-const networks = [
-  {
-    label: 'Email',
-    handle: profile.contact.email,
-    href: `mailto:${profile.contact.email}`,
-    icon: Mail,
-  },
-  {
-    label: 'GitHub',
-    handle: '@JulioEdwin',
-    href: profile.contact.github,
-    icon: GithubIcon,
-  },
-  {
-    label: 'LinkedIn',
-    handle: 'Julio Edwin RAZAFIMANAMPY',
-    href: profile.contact.linkedin,
-    icon: LinkedinIcon,
-  },
-  {
-    label: 'WhatsApp',
-    handle: profile.contact.phone,
-    href: profile.contact.whatsapp,
-    icon: Phone,
-  },
-]
-
+/**
+ * Section Contact & Échanges Professionnels.
+ * Règle de Génie Logiciel : Ergonomie UX (copie 1-clic avec Toast), Programmation défensive, bilingue.
+ */
 const Contact = () => {
   const ref = useScrollReveal()
+  const { t, language } = usePreferences()
+  const isEn = language === 'en'
+
   const formRef = useRef(null)
-  const submittingRef = useRef(false)
   const [form, setForm] = useState(initialForm)
   const [errors, setErrors] = useState(initialErrors)
-  const [status, setStatus] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState(null)
+
+  // Toast feedback
+  const [toastMessage, setToastMessage] = useState('')
+  const [showToast, setShowToast] = useState(false)
+
+  const { copied: emailCopied, copyText: copyEmail } = useClipboard(2500)
+  const { copied: phoneCopied, copyText: copyPhone } = useClipboard(2500)
+
+  const triggerToast = (msg) => {
+    setToastMessage(msg)
+    setShowToast(true)
+    setTimeout(() => setShowToast(false), 3000)
+  }
+
+  const handleCopyEmail = async () => {
+    const ok = await copyEmail(profile.contact.email)
+    if (ok) triggerToast(t.contact.copyEmailToast)
+  }
+
+  const handleCopyPhone = async () => {
+    const ok = await copyPhone(profile.contact.phone)
+    if (ok) triggerToast(t.contact.copyPhoneToast)
+  }
 
   const validate = (field) => {
     const value = form[field].trim()
     const newErrors = { ...errors }
 
     if (field === 'name' && !value) {
-      newErrors.name = 'Votre nom est obligatoire.'
+      newErrors.name = isEn ? 'Your full name is required.' : 'Votre nom est requis.'
     } else if (field === 'email' && !value) {
-      newErrors.email = 'Votre email est obligatoire.'
+      newErrors.email = isEn ? 'Your email address is required.' : 'Votre e-mail est requis.'
     } else if (field === 'email' && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-      newErrors.email = 'Veuillez saisir un email valide.'
+      newErrors.email = isEn ? 'Please enter a valid email address.' : 'Veuillez saisir une adresse e-mail valide.'
     } else if (field === 'subject' && !value) {
-      newErrors.subject = 'Le sujet est obligatoire.'
+      newErrors.subject = isEn ? 'Subject is required.' : 'Le sujet est requis.'
     } else if (field === 'message' && !value) {
-      newErrors.message = 'Votre message est obligatoire.'
+      newErrors.message = isEn ? 'Message is required.' : 'Votre message est requis.'
     } else if (field === 'message' && value && value.length < 10) {
-      newErrors.message = 'Votre message doit contenir au moins 10 caractères.'
+      newErrors.message = isEn ? 'Message must be at least 10 characters.' : 'Le message doit contenir au moins 10 caractères.'
     } else {
       newErrors[field] = ''
     }
@@ -92,347 +97,359 @@ const Contact = () => {
     }
   }
 
-  const handleBlur = (e) => {
-    validate(e.target.name)
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    // Protection anti-doublon : garde synchrone (état React non rafraîchi encore).
-    if (submittingRef.current || isSubmitting) return
-
+    const fields = ['name', 'email', 'subject', 'message']
     const newErrors = {}
-    Object.keys(form).forEach((field) => {
-      const value = form[field].trim()
-      if (!value) {
-        newErrors[field] =
-          field === 'name'
-            ? 'Votre nom est obligatoire.'
-            : field === 'email'
-              ? 'Votre email est obligatoire.'
-              : field === 'subject'
-                ? 'Le sujet est obligatoire.'
-                : 'Votre message est obligatoire.'
-      } else if (field === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-        newErrors.email = 'Veuillez saisir un email valide.'
-      } else if (field === 'message' && value.length < 10) {
-        newErrors.message = 'Votre message doit contenir au moins 10 caractères.'
+    let hasError = false
+
+    fields.forEach((field) => {
+      const val = form[field].trim()
+      if (!val) {
+        newErrors[field] = isEn ? 'This field is required.' : 'Ce champ est obligatoire.'
+        hasError = true
       }
     })
 
-    setErrors(newErrors)
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      newErrors.email = isEn ? 'Invalid email address.' : 'Adresse e-mail invalide.'
+      hasError = true
+    }
 
-    if (Object.keys(newErrors).some((key) => newErrors[key])) {
-      setStatus({ type: 'error', message: 'Veuillez corriger les erreurs du formulaire.' })
+    if (hasError) {
+      setErrors(newErrors)
       return
     }
+
+    setIsSubmitting(true)
+    setSubmitStatus(null)
 
     if (!ACCESS_KEY) {
-      console.error(
-        '[Contact] VITE_WEB3FORMS_ACCESS_KEY manquante : renseignez .env.local puis relancez le build.'
-      )
-      setStatus({
-        type: 'error',
-        message: 'L’envoi n’est pas encore configuré pour le moment. Réessayez plus tard.',
-      })
+      const mailtoUrl = `mailto:${profile.contact.email}?subject=${encodeURIComponent(
+        `[Portfolio] ${form.subject}`
+      )}&body=${encodeURIComponent(
+        `From: ${form.name} (${form.email})\n\nMessage:\n${form.message}`
+      )}`
+      window.location.href = mailtoUrl
+      setIsSubmitting(false)
+      setSubmitStatus('success')
+      setForm(initialForm)
+      triggerToast(isEn ? 'Redirecting to your email client...' : 'Redirection vers votre messagerie en cours...')
       return
     }
 
-    submittingRef.current = true
-    setIsSubmitting(true)
-    setStatus(null)
-
-    const formData = new FormData(formRef.current)
-    formData.set('access_key', ACCESS_KEY)
-    formData.set('subject', `Nouveau message depuis le portfolio — ${form.subject}`)
-    formData.set('replyto', form.email)
-    formData.set('from_name', 'RJ Portfolio')
-
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), SUBMIT_TIMEOUT_MS)
-
     try {
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), SUBMIT_TIMEOUT_MS)
+
       const response = await fetch(WEB3FORMS_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify(Object.fromEntries(formData)),
+        body: JSON.stringify({
+          access_key: ACCESS_KEY,
+          name: form.name,
+          email: form.email,
+          subject: form.subject,
+          message: form.message,
+          from_name: `${form.name} (via Portfolio)`,
+        }),
         signal: controller.signal,
       })
 
-      const data = await response.json().catch(() => null)
-
-      if (response.ok && data?.success) {
-        setStatus({
-          type: 'success',
-          message:
-            'Message envoyé avec succès ✓ — Merci pour votre message, je reviens vers vous dès que possible.',
-        })
-        setForm(initialForm)
-        setErrors(initialErrors)
-      } else {
-        // Détails techniques réservés à la console, l'utilisateur reçoit un message humain.
-        console.error('[Contact] Web3Forms', response.status, data)
-        setStatus({
-          type: 'error',
-          message:
-            response.status === 429
-              ? 'Trop de messages envoyés en peu de temps. Réessayez dans quelques instants.'
-              : NETWORK_ERROR_MESSAGE,
-        })
-      }
-    } catch (error) {
-      console.error('[Contact] Échec de l’envoi', error)
-      setStatus({ type: 'error', message: NETWORK_ERROR_MESSAGE })
-    } finally {
       clearTimeout(timeoutId)
-      submittingRef.current = false
+      const data = await response.json()
+
+      if (data.success) {
+        setSubmitStatus('success')
+        setForm(initialForm)
+        triggerToast(isEn ? 'Message sent successfully!' : 'Message transmis avec succès !')
+      } else {
+        setSubmitStatus('error')
+      }
+    } catch (err) {
+      console.error("Erreur lors de l'envoi :", err)
+      setSubmitStatus('error')
+    } finally {
       setIsSubmitting(false)
     }
   }
 
-  const inputBase =
-    'w-full px-4 py-3 rounded-lg border bg-white text-navy placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/30 transition-colors'
-  const inputNormal = 'border-slate-200 hover:border-slate-300'
-  const inputError = 'border-red-400 focus:ring-red-200'
-
   return (
-    <section id="contact" className="relative bg-light overflow-hidden">
-      <div className="absolute inset-0 bg-grid-light" aria-hidden="true" />
+    <section id="contact" className="relative bg-slate-950 py-24 md:py-32 overflow-hidden border-t border-slate-900">
+      <div className="absolute inset-0 bg-tech-grid opacity-30 pointer-events-none" aria-hidden="true" />
+      <div
+        className="pointer-events-none absolute -bottom-32 right-0 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[140px]"
+        aria-hidden="true"
+      />
 
-      <div ref={ref} className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-36">
+      <div ref={ref} className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
         <div className="scroll-reveal">
-          <SectionTitle
-            eyebrow="contact"
-            title="Restons en contact"
-            description="Toujours ouvert pour échanger autour de belles problématiques d'architecture, de nouveaux défis backend ou d'opportunités de collaboration."
+          <SectionHeader
+            eyebrow={t.contact.eyebrow}
+            title={t.contact.title}
+            description={t.contact.description}
           />
         </div>
 
-        {/* grid-cols-1 : borne la piste mobile à 0 min, sinon le long email de la
-            colonne gauche élargit la grille et fait déborder le formulaire. */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-start">
-          <div className="scroll-reveal space-y-8">
-            <div>
-              <p className="section-label text-primary mb-4">— écrivez-moi</p>
-              <a
-                href={`mailto:${profile.contact.email}`}
-                className="block font-display font-black uppercase leading-none text-[clamp(1.5rem,4vw,2.75rem)] text-navy hover:text-primary transition-colors break-words"
-              >
-                {profile.contact.email}
-              </a>
-              <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-slate-500">
-                <a
-                  href={`tel:${profile.contact.phone.replace(/[^+\d]/g, '')}`}
-                  className="inline-flex items-center gap-2 hover:text-primary transition-colors"
-                >
-                  <Phone size={15} className="text-primary" />
-                  {profile.contact.phone}
-                </a>
-                <span className="inline-flex items-center gap-2">
-                  <MapPin size={15} className="text-primary" />
-                  {profile.contact.location}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+          {/* Colonne Gauche : Coordonnées Directes & Copie 1-Clic */}
+          <div className="lg:col-span-5 space-y-4">
+            {/* Carte Email */}
+            <div className="scroll-reveal p-5 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-3.5 min-w-0 pr-2">
+                <span className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/20">
+                  <Mail size={18} />
                 </span>
+                <div className="min-w-0">
+                  <p className="font-mono text-[10px] uppercase tracking-wider text-slate-400">
+                    {t.contact.emailLabel}
+                  </p>
+                  <a
+                    href={`mailto:${profile.contact.email}`}
+                    className="font-sans font-bold text-sm text-white hover:text-blue-400 truncate block transition-colors"
+                  >
+                    {profile.contact.email}
+                  </a>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleCopyEmail}
+                className="p-2.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors shrink-0 cursor-pointer"
+                title={t.contact.emailLabel}
+                aria-label={t.contact.emailLabel}
+              >
+                {emailCopied ? (
+                  <Check size={16} className="text-blue-400" />
+                ) : (
+                  <Copy size={16} />
+                )}
+              </button>
+            </div>
+
+            {/* Carte Téléphone / WhatsApp */}
+            <div className="scroll-reveal p-5 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-3.5 min-w-0 pr-2">
+                <span className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/20">
+                  <Phone size={18} />
+                </span>
+                <div className="min-w-0">
+                  <p className="font-mono text-[10px] uppercase tracking-wider text-slate-400">
+                    {t.contact.phoneLabel}
+                  </p>
+                  <a
+                    href={profile.contact.whatsapp}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-sans font-bold text-sm text-white hover:text-blue-400 truncate block transition-colors"
+                  >
+                    {profile.contact.phone}
+                  </a>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleCopyPhone}
+                className="p-2.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors shrink-0 cursor-pointer"
+                title={t.contact.phoneLabel}
+                aria-label={t.contact.phoneLabel}
+              >
+                {phoneCopied ? (
+                  <Check size={16} className="text-blue-400" />
+                ) : (
+                  <Copy size={16} />
+                )}
+              </button>
+            </div>
+
+            {/* Carte Localisation */}
+            <div className="scroll-reveal p-5 rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center gap-3.5">
+              <span className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/20">
+                <MapPin size={18} />
+              </span>
+              <div>
+                <p className="font-mono text-[10px] uppercase tracking-wider text-slate-400">
+                  {t.contact.locationLabel}
+                </p>
+                <p className="font-sans font-bold text-sm text-white">
+                  {profile.location}
+                </p>
               </div>
             </div>
 
-            <ul className="grid sm:grid-cols-2 gap-4">
-              {networks.map(({ label, handle, href, icon: Icon }) => (
-                <li key={label}>
-                  <a
-                    href={href}
-                    target={href.startsWith('http') ? '_blank' : undefined}
-                    rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                    className="group flex items-start justify-between gap-3 h-full bg-white border border-slate-200 rounded-2xl p-5 hover:border-primary/60 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300"
-                  >
-                    <div>
-                      <span className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 text-primary mb-3 group-hover:bg-primary group-hover:text-white transition-colors">
-                        <Icon size={18} />
-                      </span>
-                      <p className="font-heading font-extrabold text-navy">{label}</p>
-                      <p className="font-mono text-[11px] text-slate-400 break-all">{handle}</p>
-                    </div>
-                    <ArrowUpRight
-                      size={16}
-                      className="text-slate-300 group-hover:text-primary transition-colors shrink-0"
-                    />
-                  </a>
-                </li>
-              ))}
-            </ul>
-
-            <div className="flex items-center gap-3 px-5 py-4 bg-white border border-slate-200 rounded-2xl">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" aria-hidden="true" />
-              <p className="text-sm text-slate-600">
-                <span className="font-semibold text-navy">{profile.availability}</span> — je réponds
-                généralement sous 24 h.
+            {/* Réseaux Professionnels */}
+            <div className="scroll-reveal p-5 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-3">
+              <p className="font-mono text-[10px] uppercase tracking-wider text-blue-400">
+                {t.contact.networksLabel}
               </p>
+              <div className="grid grid-cols-2 gap-3">
+                <a
+                  href={profile.contact.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-semibold text-slate-200 hover:text-white hover:border-blue-500/50 transition-all"
+                >
+                  <GithubIcon size={16} />
+                  <span>GitHub</span>
+                  <ExternalLink size={12} className="ml-auto text-slate-500" />
+                </a>
+
+                <a
+                  href={profile.contact.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs font-semibold text-slate-200 hover:text-white hover:border-blue-500/50 transition-all"
+                >
+                  <LinkedinIcon size={16} />
+                  <span>LinkedIn</span>
+                  <ExternalLink size={12} className="ml-auto text-slate-500" />
+                </a>
+              </div>
             </div>
           </div>
 
-          <div className="scroll-reveal" style={{ transitionDelay: '120ms' }}>
-            <form
-              id="formulaire"
-              ref={formRef}
-              onSubmit={handleSubmit}
-              aria-busy={isSubmitting}
-              className="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm space-y-5"
-              noValidate
-            >
-              {/* Honeypot Web3Forms : invisible pour les visiteurs, rempli par les bots. */}
-              <input
-                type="checkbox"
-                name="botcheck"
-                tabIndex={-1}
-                autoComplete="off"
-                aria-hidden="true"
-                className="hidden"
-                style={{ display: 'none' }}
-              />
-              <div className="flex items-center justify-between mb-1">
-                <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-primary">
-                  envoyons / message
-                </p>
-                <span className="font-display font-black text-primary/30 text-lg">01</span>
+          {/* Colonne Droite : Formulaire de Contact */}
+          <div className="lg:col-span-7">
+            <Card className="p-6 sm:p-8 bg-slate-900/90 border-slate-800">
+              <div className="flex items-center gap-2 mb-6">
+                <MessageSquare size={18} className="text-blue-400" />
+                <h3 className="font-sans font-bold text-lg text-white">
+                  {t.contact.formTitle}
+                </h3>
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-5">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-navy mb-1.5">
-                    Nom <span className="text-primary">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={form.name}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    placeholder="Votre nom"
-                    autoComplete="name"
-                    required
-                    aria-invalid={!!errors.name}
-                    aria-describedby={errors.name ? 'name-error' : undefined}
-                    className={`${inputBase} ${errors.name ? inputError : inputNormal}`}
-                  />
-                  {errors.name && (
-                    <p id="name-error" className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
-                      <AlertCircle size={12} /> {errors.name}
+              {submitStatus === 'success' && (
+                <div className="p-4 mb-6 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-200 text-xs sm:text-sm flex items-start gap-3">
+                  <CheckCircle2 size={18} className="text-blue-400 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-bold">{t.contact.successMsgTitle}</p>
+                    <p className="mt-0.5 text-blue-300">
+                      {t.contact.successMsgText}
                     </p>
-                  )}
-                </div>
-
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-navy mb-1.5">
-                    Email <span className="text-primary">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={form.email}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    placeholder="vous@exemple.com"
-                    autoComplete="email"
-                    required
-                    aria-invalid={!!errors.email}
-                    aria-describedby={errors.email ? 'email-error' : undefined}
-                    className={`${inputBase} ${errors.email ? inputError : inputNormal}`}
-                  />
-                  {errors.email && (
-                    <p id="email-error" className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
-                      <AlertCircle size={12} /> {errors.email}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <label htmlFor="subject" className="block text-sm font-medium text-navy mb-1.5">
-                  Sujet <span className="text-primary">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="subject"
-                  name="subject"
-                  value={form.subject}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  placeholder="Objet de votre message"
-                  required
-                  aria-invalid={!!errors.subject}
-                  aria-describedby={errors.subject ? 'subject-error' : undefined}
-                  className={`${inputBase} ${errors.subject ? inputError : inputNormal}`}
-                />
-                {errors.subject && (
-                  <p id="subject-error" className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
-                    <AlertCircle size={12} /> {errors.subject}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor="message" className="block text-sm font-medium text-navy mb-1.5">
-                  Message <span className="text-primary">*</span>
-                </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  rows="5"
-                  value={form.message}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  placeholder="Votre message..."
-                  required
-                  aria-invalid={!!errors.message}
-                  aria-describedby={errors.message ? 'message-error' : undefined}
-                  className={`${inputBase} resize-y ${errors.message ? inputError : inputNormal}`}
-                />
-                {errors.message && (
-                  <p id="message-error" className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
-                    <AlertCircle size={12} /> {errors.message}
-                  </p>
-                )}
-              </div>
-
-              {status && (
-                <div
-                  className={`flex items-center gap-2.5 px-4 py-3 rounded-lg text-sm font-medium ${
-                    status.type === 'success'
-                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                      : 'bg-red-50 text-red-700 border border-red-200'
-                  }`}
-                  role="status"
-                  aria-live="polite"
-                >
-                  {status.type === 'success' ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
-                  {status.message}
+                  </div>
                 </div>
               )}
 
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                aria-busy={isSubmitting}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary-dark transition-colors shadow-sm shadow-primary/25 cursor-pointer disabled:opacity-70 disabled:cursor-wait disabled:hover:bg-primary"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 size={18} className="animate-spin" />
-                    Envoi en cours…
-                  </>
-                ) : (
-                  <>
-                    <Send size={18} />
-                    Envoyer le message
-                  </>
-                )}
-              </button>
-            </form>
+              {submitStatus === 'error' && (
+                <div className="p-4 mb-6 rounded-xl bg-red-500/10 border border-red-500/30 text-red-200 text-xs sm:text-sm flex items-start gap-3">
+                  <AlertCircle size={18} className="text-red-400 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-bold">{t.contact.errorMsgTitle}</p>
+                    <p className="mt-0.5 text-red-300">
+                      {t.contact.errorMsgText}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <form ref={formRef} onSubmit={handleSubmit} noValidate className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="name" className="block text-xs font-mono uppercase tracking-wider text-slate-300 mb-1.5">
+                      {t.contact.nameLabel}
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={form.name}
+                      onChange={handleChange}
+                      onBlur={() => validate('name')}
+                      placeholder={t.contact.namePlaceholder}
+                      required
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs sm:text-sm text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                    />
+                    {errors.name && (
+                      <p className="text-[11px] text-blue-400 mt-1 font-mono">{errors.name}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label htmlFor="email" className="block text-xs font-mono uppercase tracking-wider text-slate-300 mb-1.5">
+                      {t.contact.emailInputLabel}
+                    </label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={form.email}
+                      onChange={handleChange}
+                      onBlur={() => validate('email')}
+                      placeholder={t.contact.emailPlaceholder}
+                      required
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs sm:text-sm text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                    />
+                    {errors.email && (
+                      <p className="text-[11px] text-blue-400 mt-1 font-mono">{errors.email}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="subject" className="block text-xs font-mono uppercase tracking-wider text-slate-300 mb-1.5">
+                    {t.contact.subjectLabel}
+                  </label>
+                  <input
+                    type="text"
+                    id="subject"
+                    name="subject"
+                    value={form.subject}
+                    onChange={handleChange}
+                    onBlur={() => validate('subject')}
+                    placeholder={t.contact.subjectPlaceholder}
+                    required
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs sm:text-sm text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                  />
+                  {errors.subject && (
+                    <p className="text-[11px] text-blue-400 mt-1 font-mono">{errors.subject}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor="message" className="block text-xs font-mono uppercase tracking-wider text-slate-300 mb-1.5">
+                    {t.contact.messageLabel}
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    rows={5}
+                    value={form.message}
+                    onChange={handleChange}
+                    onBlur={() => validate('message')}
+                    placeholder={t.contact.messagePlaceholder}
+                    required
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs sm:text-sm text-white placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors resize-y"
+                  />
+                  {errors.message && (
+                    <p className="text-[11px] text-blue-400 mt-1 font-mono">{errors.message}</p>
+                  )}
+                </div>
+
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  loading={isSubmitting}
+                  icon={Send}
+                  className="w-full sm:w-auto"
+                >
+                  {t.contact.sendBtn}
+                </Button>
+              </form>
+            </Card>
           </div>
         </div>
       </div>
+
+      {/* Toast Notification */}
+      <Toast
+        show={showToast}
+        message={toastMessage}
+        onClose={() => setShowToast(false)}
+      />
     </section>
   )
 }

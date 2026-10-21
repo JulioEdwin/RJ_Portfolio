@@ -1,161 +1,255 @@
-import { useState, useEffect } from 'react'
-import { Menu, X, FileDown } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { Menu, X, FileDown, Send, SlidersHorizontal, Sun, Moon } from 'lucide-react'
 import { profile } from '../../data/profile'
+import { SECTION_IDS } from '../../constants/navigation'
 import useActiveSection from '../../hooks/useActiveSection'
+import { usePreferences } from '../../context/PreferencesContext'
+import { getInitials } from '../../utils/helpers'
 
-const navLinks = [
-  { label: 'À propos', href: '#a-propos' },
-  { label: 'Compétences', href: '#competences' },
-  { label: 'Projets', href: '#projets' },
-  { label: 'Parcours', href: '#parcours' },
-  { label: 'Certifications', href: '#certifications' },
-  { label: 'Intérêts', href: '#interets' },
-  { label: 'Contact', href: '#contact' },
-]
-
-const sectionIds = ['accueil', 'a-propos', 'competences', 'services', 'projets', 'parcours', 'certifications', 'interets', 'contact']
-
+/**
+ * Composant Barre de Navigation (Navbar) ergonomique, accessible et fluide.
+ * Règle de Génie Logiciel : SoC, A11y (WCAG AA), préférences utilisateur intégrées.
+ */
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [progress, setProgress] = useState(0)
-  const active = useActiveSection(sectionIds)
+  const activeSection = useActiveSection(SECTION_IDS)
+  const { language, resolvedTheme, setIsSettingsOpen, t } = usePreferences()
 
   useEffect(() => {
+    let ticking = false
+
     const handleScroll = () => {
-      const scrollable = document.documentElement.scrollHeight - window.innerHeight
-      setScrolled(window.scrollY > 10)
-      setProgress(scrollable > 0 ? Math.min(window.scrollY / scrollable, 1) : 0)
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const scrollY = window.scrollY
+          const scrollable = document.documentElement.scrollHeight - window.innerHeight
+          setScrolled(scrollY > 20)
+          setProgress(scrollable > 0 ? Math.min(scrollY / scrollable, 1) : 0)
+          ticking = false
+        })
+        ticking = true
+      }
     }
+
     handleScroll()
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  // Verrouillage du scroll quand le menu mobile est ouvert
   useEffect(() => {
-    document.body.style.overflow = isOpen ? 'hidden' : ''
-    return () => {
+    const prevOverflow = document.body.style.overflow
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
       document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = prevOverflow
     }
   }, [isOpen])
 
-  const initials = profile.name
-    .split(' ')
-    .map((word) => word[0])
-    .slice(0, 2)
-    .join('')
+  const initials = getInitials(profile.name, 2)
+
+  const navItems = [
+    { label: t.nav.home, href: '#accueil' },
+    { label: t.nav.about, href: '#a-propos' },
+    { label: t.nav.engineering, href: '#genie-logiciel' },
+    { label: t.nav.skills, href: '#competences' },
+    { label: t.nav.services, href: '#services' },
+    { label: t.nav.projects, href: '#projets' },
+    { label: t.nav.timeline, href: '#parcours' },
+    { label: t.nav.certifications, href: '#certifications' },
+    { label: t.nav.contact, href: '#contact' },
+  ]
 
   return (
-    <header className="fixed top-0 inset-x-0 z-50">
+    <header className="fixed top-0 inset-x-0 z-50 transition-all duration-300">
       <div
-        className={`transition-all duration-300 ${
+        className={`w-full transition-all duration-300 ${
           scrolled || isOpen
-            ? 'bg-ink/85 backdrop-blur-md border-b border-white/10'
+            ? 'bg-slate-950/85 backdrop-blur-xl border-b border-slate-800/80 shadow-lg shadow-black/40'
             : 'bg-transparent border-b border-transparent'
         }`}
       >
-        <nav
-          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
-          aria-label="Navigation principale"
-        >
-          <div className="flex items-center justify-between h-16 md:h-20">
-            <a href="#accueil" className="flex items-center gap-2.5 group" onClick={() => setIsOpen(false)}>
-              <span className="w-9 h-9 bg-primary text-white rounded-lg flex items-center justify-center font-display font-bold text-sm group-hover:bg-primary-dark transition-colors">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <nav
+            className="flex items-center justify-between h-16 md:h-20"
+            aria-label="Navigation principale"
+          >
+            {/* Logo / Monogramme */}
+            <a
+              href="#accueil"
+              className="flex items-center gap-3 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 rounded-xl p-1"
+              onClick={() => setIsOpen(false)}
+            >
+              <div className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-mono font-bold text-sm tracking-wider shadow-md shadow-blue-600/30 group-hover:bg-blue-500 transition-colors">
                 {initials}
-              </span>
-              <span className="hidden sm:block font-mono text-[11px] uppercase tracking-[0.14em] text-white">
-                {profile.name}
-              </span>
+              </div>
+              <div className="flex flex-col">
+                <span className="font-sans font-bold text-sm text-white tracking-tight group-hover:text-blue-400 transition-colors">
+                  {profile.firstName}
+                </span>
+                <span className="font-mono text-[10px] text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+                  Full Stack
+                </span>
+              </div>
             </a>
 
-            <ul className="hidden lg:flex items-center gap-1">
-              {navLinks.map((link) => {
-                const isActive = active === link.href.slice(1)
+            {/* Liens de navigation Desktop */}
+            <ul className="hidden xl:flex items-center gap-1 bg-slate-900/60 border border-slate-800/80 px-3 py-1.5 rounded-full backdrop-blur-md">
+              {navItems.map((link) => {
+                const isActive = activeSection === link.href.slice(1)
                 return (
                   <li key={link.href}>
                     <a
                       href={link.href}
-                      className={`relative px-3 py-2 text-[11px] font-bold uppercase tracking-[0.11em] transition-colors duration-300 ${
-                        isActive ? 'text-white' : 'text-slate-400 hover:text-white'
+                      className={`relative px-3 py-1.5 rounded-full text-xs font-medium font-sans transition-all duration-200 block ${
+                        isActive
+                          ? 'bg-blue-600 text-white shadow-sm shadow-blue-600/30'
+                          : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
                       }`}
+                      aria-current={isActive ? 'page' : undefined}
                     >
                       {link.label}
-                      <span
-                        className={`absolute left-3 right-3 -bottom-0.5 h-px bg-primary-light origin-left transition-transform duration-300 ${
-                          isActive ? 'scale-x-100' : 'scale-x-0'
-                        }`}
-                        aria-hidden="true"
-                      />
                     </a>
                   </li>
                 )
               })}
             </ul>
 
-            <div className="flex items-center gap-3">
+            {/* Actions à droite : Préférences + CV + Contact */}
+            <div className="flex items-center gap-2">
+              {/* Bouton Paramètres / Préférences */}
+              <button
+                type="button"
+                onClick={() => setIsSettingsOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900/90 text-slate-200 border border-slate-700/80 hover:text-white hover:border-blue-500/60 hover:bg-slate-800 transition-all cursor-pointer shadow-sm"
+                title={t.nav.settings}
+                aria-label={t.nav.settings}
+              >
+                <SlidersHorizontal size={15} className="text-blue-400 shrink-0" />
+                <span className="hidden sm:inline font-mono text-xs uppercase tracking-wider">
+                  {language.toUpperCase()}
+                </span>
+                <span className="text-xs opacity-75 hidden sm:inline" aria-hidden="true">
+                  {resolvedTheme === 'dark' ? <Moon size={13} className="inline text-blue-300" /> : <Sun size={13} className="inline text-blue-400" />}
+                </span>
+              </button>
+
               <a
-                href={profile.cv}
+                href={language === 'en' ? profile.cvEn : profile.cv}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hidden sm:inline-flex items-center gap-2 px-4 py-2 bg-primary text-white text-[11px] font-bold uppercase tracking-[0.14em] hover:bg-primary-dark transition-colors"
+                className="hidden lg:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 text-slate-200 text-xs font-semibold hover:bg-slate-800 hover:text-white border border-slate-700/80 transition-all duration-200"
               >
-                <FileDown size={14} />
-                CV
+                <FileDown size={14} className="text-blue-400" />
+                <span>{language === 'en' ? t.nav.cvEn : t.nav.cvFr}</span>
               </a>
 
+              <a
+                href="#contact"
+                className="hidden md:inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-500 shadow-md shadow-blue-600/25 transition-all duration-200"
+              >
+                <Send size={13} />
+                <span>{t.nav.contact}</span>
+              </a>
+
+              {/* Bouton Toggle Mobile */}
               <button
-                className="lg:hidden p-2 rounded-lg text-white hover:bg-white/10 transition-colors"
+                type="button"
+                className="xl:hidden p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 cursor-pointer"
                 onClick={() => setIsOpen(!isOpen)}
-                aria-label={isOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+                aria-label={isOpen ? t.nav.closeMenu : t.nav.openMenu}
                 aria-expanded={isOpen}
               >
-                {isOpen ? <X size={24} /> : <Menu size={24} />}
+                {isOpen ? <X size={22} /> : <Menu size={22} />}
               </button>
             </div>
-          </div>
-        </nav>
+          </nav>
+        </div>
 
-        <div className="h-0.5 bg-white/5" aria-hidden="true">
+        {/* Ligne fine de progression de défilement */}
+        <div className="h-[2px] bg-slate-800/60 w-full" aria-hidden="true">
           <div
-            className="h-full bg-primary origin-left transition-transform duration-150"
+            className="h-full bg-blue-500 origin-left transition-transform duration-100 ease-out"
             style={{ transform: `scaleX(${progress})` }}
           />
         </div>
       </div>
 
+      {/* Menu Déroulant Mobile */}
       {isOpen && (
-        <div className="lg:hidden bg-ink/97 backdrop-blur-md border-b border-white/10 max-h-[calc(100vh-4.5rem)] overflow-y-auto">
-          <nav className="px-4 py-6" aria-label="Navigation mobile">
-            <ul className="space-y-1">
-              {navLinks.map((link) => (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
-                    onClick={() => setIsOpen(false)}
-                    className={`flex items-center justify-between px-3 py-3.5 font-heading font-bold text-lg border-b border-white/5 transition-colors ${
-                      active === link.href.slice(1) ? 'text-white' : 'text-slate-400 hover:text-white'
-                    }`}
-                  >
-                    {link.label}
-                    <span className="font-mono text-[10px] text-slate-600">
-                      {String(navLinks.indexOf(link) + 1).padStart(2, '0')}
-                    </span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-6 px-3 pb-3">
+        <div className="xl:hidden fixed inset-x-0 top-[66px] bg-slate-950/98 backdrop-blur-2xl border-b border-slate-800 max-h-[calc(100vh-4.5rem)] overflow-y-auto animate-fadeIn shadow-2xl">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-4">
+            {/* Raccourci paramètres dans le menu mobile */}
+            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800">
+              <span className="font-mono text-xs uppercase tracking-wider text-slate-400">
+                {t.nav.settings}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsOpen(false)
+                  setIsSettingsOpen(true)
+                }}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-600/15 border border-blue-500/30 text-blue-400 font-mono text-xs font-semibold hover:bg-blue-600 hover:text-white transition-colors cursor-pointer"
+              >
+                <SlidersHorizontal size={14} />
+                <span>{language.toUpperCase()} • {resolvedTheme === 'dark' ? 'Sombre' : 'Clair'}</span>
+              </button>
+            </div>
+
+            <nav aria-label="Navigation mobile">
+              <ul className="space-y-1">
+                {navItems.map((link, idx) => {
+                  const isActive = activeSection === link.href.slice(1)
+                  return (
+                    <li key={link.href}>
+                      <a
+                        href={link.href}
+                        onClick={() => setIsOpen(false)}
+                        className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
+                          isActive
+                            ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
+                            : 'text-slate-300 hover:text-white hover:bg-slate-900'
+                        }`}
+                      >
+                        <span>{link.label}</span>
+                        <span className="font-mono text-xs text-slate-500">
+                          {String(idx + 1).padStart(2, '0')}
+                        </span>
+                      </a>
+                    </li>
+                  )
+                })}
+              </ul>
+            </nav>
+
+            <div className="pt-4 border-t border-slate-800/80 grid grid-cols-2 gap-3">
               <a
                 href={profile.cv}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex w-full items-center justify-center gap-2 px-4 py-3 bg-primary text-white text-xs font-bold uppercase tracking-[0.14em] hover:bg-primary-dark transition-colors"
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-xs font-semibold hover:bg-slate-800"
               >
-                <FileDown size={16} />
-                Télécharger mon CV
+                <FileDown size={16} className="text-blue-400" />
+                {t.nav.cvFr}
+              </a>
+              <a
+                href={profile.cvEn}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-xs font-semibold hover:bg-slate-800"
+              >
+                <FileDown size={16} className="text-blue-400" />
+                {t.nav.cvEn}
               </a>
             </div>
-          </nav>
+          </div>
         </div>
       )}
     </header>

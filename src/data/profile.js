@@ -11,7 +11,7 @@ export const profile = {
   location: 'Fianarantsoa, Madagascar',
   availability: 'Disponible pour stage / emploi / freelance',
   passion: 'React, TypeScript, Spring Boot & DevOps',
-  photo: `${import.meta.env.BASE_URL}images/profile.jpeg`,
+  photo: `${import.meta.env.BASE_URL}images/profile.jpg`,
   diploma: `${import.meta.env.BASE_URL}images/diplome.jpeg`,
   cv: `${import.meta.env.BASE_URL}pdf/cv-fr.pdf`,
   cvEn: `${import.meta.env.BASE_URL}pdf/cv-en.pdf`,
@@ -59,7 +59,7 @@ export const profile = {
         label: 'mon objectif',
         lines: [
           'Rejoindre une équipe où je',
-          'peut appliquer mes',
+          'peux appliquer mes',
           'compétences sur des projets',
           'concrets, utiles et durables.',
         ],
@@ -85,16 +85,16 @@ export const profile = {
     'Apprentissage continu',
   ],
   languages: [
-    { name: 'Malagasy', level: 'Très bien' },
-    { name: 'Français', level: 'Assez bien' },
-    { name: 'Anglais', level: 'Intermédiaire' },
+    { name: 'Malagasy', level: 'Langue maternelle' },
+    { name: 'Français', level: 'Certifié — FLTC Group (2024)' },
+    { name: 'Anglais', level: 'Technique & Professionnel' },
   ],
   contact: {
     email: 'razafimanampyjulioedwin@gmail.com',
     phone: '034 07 262 67',
     whatsapp: 'https://wa.me/261340726267',
     github: 'https://github.com/JulioEdwin',
-    linkedin: 'https://linkedin.com/in/julio-edwin-razafimanampy',
+    linkedin: 'https://www.linkedin.com/in/julio-edwin-razafimanampy-6001ab2a9/',
     location: 'Fianarantsoa, Madagascar',
   },
 }

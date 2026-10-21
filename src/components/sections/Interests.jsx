@@ -1,8 +1,22 @@
-import { Puzzle, Sparkles, Cpu, Users, Handshake, Palette, Music, Gamepad2, Languages } from 'lucide-react'
+import React from 'react'
+import {
+  Puzzle,
+  Sparkles,
+  Cpu,
+  Users,
+  Handshake,
+  Palette,
+  Music,
+  Gamepad2,
+  Languages,
+  Globe,
+} from 'lucide-react'
 import { interests } from '../../data/interests'
 import { profile } from '../../data/profile'
-import SectionTitle from '../ui/SectionTitle'
+import SectionHeader from '../common/SectionHeader'
+import Card from '../common/Card'
 import useScrollReveal from '../../hooks/useScrollReveal'
+import { usePreferences } from '../../context/PreferencesContext'
 
 const iconMap = {
   puzzle: Puzzle,
@@ -15,71 +29,129 @@ const iconMap = {
   gamepad: Gamepad2,
 }
 
+const interestsEn = [
+  {
+    icon: 'puzzle',
+    title: 'Problem Solving & Logic',
+    description: 'Passion for algorithms, competitive coding challenges, and architecting elegant solutions for complex technical issues.',
+  },
+  {
+    icon: 'sparkles',
+    title: 'Technology Watch & Innovation',
+    description: 'Continuous exploration of open-source ecosystems, software engineering trends, AI integration, and cloud advancements.',
+  },
+  {
+    icon: 'palette',
+    title: 'UI/UX Craft & Ergonomics',
+    description: 'Designing intuitive, high-speed user experiences with strict accessibility standards and minimalist aesthetics.',
+  },
+  {
+    icon: 'users',
+    title: 'Teamwork & Knowledge Sharing',
+    description: 'Active collaboration, pair programming, code reviews, and knowledge exchange within academic and professional teams.',
+  },
+]
+
+const languagesEn = [
+  { name: 'Malagasy', level: 'Native Language' },
+  { name: 'French', level: 'Certified — FLTC Group (2024)' },
+  { name: 'English', level: 'Technical & Professional' },
+]
+
+/**
+ * Section Centres d'Intérêt & Langues.
+ * Règle de Génie Logiciel : 3 couleurs max, design sobre et aéré, bilingue.
+ */
 const Interests = () => {
   const ref = useScrollReveal()
+  const { t, language } = usePreferences()
+  const isEn = language === 'en'
+
+  const activeInterests = isEn ? interestsEn : interests
+  const activeLanguages = isEn ? languagesEn : profile.languages
 
   return (
-    <section id="interets" className="relative bg-paper overflow-hidden">
-      <div ref={ref} className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-36">
+    <section id="interets" className="relative bg-slate-950 py-24 md:py-32 overflow-hidden border-t border-slate-900">
+      <div className="absolute inset-0 bg-tech-grid opacity-30 pointer-events-none" aria-hidden="true" />
+
+      <div ref={ref} className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
         <div className="scroll-reveal">
-          <SectionTitle
-            eyebrow="centres d'intérêt"
-            title="Ce qui m'anime"
-            description="Au-delà du code : des passions et des valeurs qui nourrissent ma créativité et ma rigueur."
+          <SectionHeader
+            eyebrow={t.interests.eyebrow}
+            title={t.interests.title}
+            description={t.interests.description}
           />
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {interests.map((item, index) => {
+        {/* Grille des centres d'intérêt */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-14">
+          {activeInterests.map((item, index) => {
             const Icon = iconMap[item.icon] || Sparkles
+
             return (
               <div
                 key={item.title}
                 className="scroll-reveal"
-                style={{ transitionDelay: `${(index % 4) * 70}ms` }}
+                style={{ transitionDelay: `${(index % 4) * 60}ms` }}
               >
-                <div className="group h-full bg-white border border-slate-200 rounded-2xl p-6 flex flex-col hover:border-primary/60 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300">
-                  <div className="flex items-start justify-between mb-4">
-                    <span className="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
-                      <Icon size={22} />
-                    </span>
-                    <span className="font-display font-black text-xl text-primary/25">
-                      {String(index + 1).padStart(2, '0')}
-                    </span>
+                <Card className="h-full flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="w-11 h-11 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center border border-blue-500/20">
+                        <Icon size={20} />
+                      </span>
+                      <span className="font-mono text-xs text-slate-400">
+                        0{index + 1}
+                      </span>
+                    </div>
+
+                    <h3 className="font-sans font-bold text-base text-white mb-2">
+                      {item.title}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                      {item.description}
+                    </p>
                   </div>
-                  <h3 className="font-heading font-extrabold text-base text-navy mb-2 leading-snug">
-                    {item.title}
-                  </h3>
-                  <p className="text-sm text-slate-500 leading-relaxed">{item.description}</p>
-                </div>
+                </Card>
               </div>
             )
           })}
         </div>
 
-        <div className="scroll-reveal mt-14 bg-white border border-slate-200 rounded-2xl p-6 md:p-8">
+        {/* Profil Plurilingue */}
+        <div className="scroll-reveal p-6 sm:p-8 rounded-2xl bg-slate-900/60 border border-slate-800">
           <div className="flex items-center gap-3 mb-6">
-            <span className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
+            <span className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center border border-blue-500/20">
               <Languages size={20} />
             </span>
             <div>
-              <h3 className="font-heading font-extrabold text-lg text-navy">Langues</h3>
-              <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-slate-400">
-                profil plurilingue
+              <h3 className="font-sans font-bold text-lg text-white">
+                {t.interests.languagesTitle}
+              </h3>
+              <p className="font-mono text-xs text-blue-400">
+                {t.interests.languagesSub}
               </p>
             </div>
           </div>
 
-          <ul className="grid sm:grid-cols-3 gap-4">
-            {profile.languages.map((language) => (
-              <li key={language.name} className="bg-paper border border-slate-200 rounded-xl p-4">
-                <p className="font-heading font-bold text-navy">{language.name}</p>
-                <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-primary mt-1">
-                  {language.level}
-                </p>
-              </li>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {activeLanguages.map((lang) => (
+              <div
+                key={lang.name}
+                className="p-4 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center justify-between"
+              >
+                <div>
+                  <p className="font-sans font-bold text-sm text-white">
+                    {lang.name}
+                  </p>
+                  <p className="font-mono text-xs text-blue-400 mt-0.5">
+                    {lang.level}
+                  </p>
+                </div>
+                <Globe size={18} className="text-slate-500" />
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
       </div>
     </section>

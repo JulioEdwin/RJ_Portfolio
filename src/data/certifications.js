@@ -1,5 +1,13 @@
 export const certifications = [
   {
+    title: 'Attestation en Langue Française',
+    issuer: 'FLTC Madagascar Group — Foreign Languages Training Center',
+    date: 'Décembre 2024',
+    detail: 'Formation accélérée en français langue étrangère — attestation officielle certifiant les compétences linguistiques.',
+    file: `${import.meta.env.BASE_URL}certifications/attestation-francais-fltc.jpg`,
+    verified: true,
+  },
+  {
     title: 'Next.js Mastery',
     issuer: 'Codefinity',
     date: '2026',
