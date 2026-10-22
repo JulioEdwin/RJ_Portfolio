@@ -53,14 +53,22 @@ const Navbar = () => {
 
   const initials = getInitials(profile.name, 2)
 
-  const navItems = [
+  const desktopNavItems = [
     { label: t.nav.home, href: '#accueil' },
-    { label: t.nav.about, href: '#a-propos' },
-    { label: t.nav.engineering, href: '#genie-logiciel' },
-    { label: t.nav.skills, href: '#competences' },
-    { label: t.nav.services, href: '#services' },
     { label: t.nav.projects, href: '#projets' },
+    { label: t.nav.skills, href: '#competences' },
+    { label: t.nav.about, href: '#a-propos' },
     { label: t.nav.timeline, href: '#parcours' },
+    { label: t.nav.contact, href: '#contact' },
+  ]
+
+  const mobileNavItems = [
+    { label: t.nav.home, href: '#accueil' },
+    { label: t.nav.projects, href: '#projets' },
+    { label: t.nav.skills, href: '#competences' },
+    { label: t.nav.about, href: '#a-propos' },
+    { label: t.nav.timeline, href: '#parcours' },
+    { label: t.nav.engineering, href: '#genie-logiciel' },
     { label: t.nav.certifications, href: '#certifications' },
     { label: t.nav.contact, href: '#contact' },
   ]
@@ -99,15 +107,15 @@ const Navbar = () => {
               </div>
             </a>
 
-            {/* Liens de navigation Desktop */}
-            <ul className="hidden xl:flex items-center gap-1 bg-slate-900/60 border border-slate-800/80 px-3 py-1.5 rounded-full backdrop-blur-md">
-              {navItems.map((link) => {
+            {/* Liens de navigation Desktop : Aérés et hiérarchisés */}
+            <ul className="hidden lg:flex items-center gap-1 bg-slate-900/60 border border-slate-800/80 px-3 py-1.5 rounded-full backdrop-blur-md">
+              {desktopNavItems.map((link) => {
                 const isActive = activeSection === link.href.slice(1)
                 return (
                   <li key={link.href}>
                     <a
                       href={link.href}
-                      className={`relative px-3 py-1.5 rounded-full text-xs font-medium font-sans transition-all duration-200 block ${
+                      className={`relative px-3.5 py-1.5 rounded-full text-xs font-semibold font-sans transition-all duration-200 block ${
                         isActive
                           ? 'bg-blue-600 text-white shadow-sm shadow-blue-600/30'
                           : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
@@ -121,7 +129,7 @@ const Navbar = () => {
               })}
             </ul>
 
-            {/* Actions à droite : Préférences + CV + Contact */}
+            {/* Actions à droite : Préférences + CV */}
             <div className="flex items-center gap-2">
               {/* Bouton Paramètres / Préférences */}
               <button
@@ -144,24 +152,16 @@ const Navbar = () => {
                 href={language === 'en' ? profile.cvEn : profile.cv}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hidden lg:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 text-slate-200 text-xs font-semibold hover:bg-slate-800 hover:text-white border border-slate-700/80 transition-all duration-200"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 text-slate-200 text-xs font-semibold hover:bg-slate-800 hover:text-white border border-slate-700/80 transition-all duration-200"
               >
                 <FileDown size={14} className="text-blue-400" />
                 <span>{language === 'en' ? t.nav.cvEn : t.nav.cvFr}</span>
               </a>
 
-              <a
-                href="#contact"
-                className="hidden md:inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-blue-600 text-white text-xs font-semibold hover:bg-blue-500 shadow-md shadow-blue-600/25 transition-all duration-200"
-              >
-                <Send size={13} />
-                <span>{t.nav.contact}</span>
-              </a>
-
               {/* Bouton Toggle Mobile */}
               <button
                 type="button"
-                className="xl:hidden p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 cursor-pointer"
+                className="lg:hidden p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-300 hover:text-white hover:bg-slate-800 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 cursor-pointer"
                 onClick={() => setIsOpen(!isOpen)}
                 aria-label={isOpen ? t.nav.closeMenu : t.nav.openMenu}
                 aria-expanded={isOpen}
@@ -183,7 +183,7 @@ const Navbar = () => {
 
       {/* Menu Déroulant Mobile */}
       {isOpen && (
-        <div className="xl:hidden fixed inset-x-0 top-16 md:top-20 bg-slate-950/98 backdrop-blur-2xl border-b border-slate-800 max-h-[calc(100vh-4rem)] md:max-h-[calc(100vh-5rem)] overflow-y-auto animate-fadeIn shadow-2xl">
+        <div className="lg:hidden fixed inset-x-0 top-16 md:top-20 bg-slate-950/98 backdrop-blur-2xl border-b border-slate-800 max-h-[calc(100vh-4rem)] md:max-h-[calc(100vh-5rem)] overflow-y-auto animate-fadeIn shadow-2xl">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-4">
             {/* Raccourci paramètres dans le menu mobile */}
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800">
@@ -205,7 +205,7 @@ const Navbar = () => {
 
             <nav aria-label="Navigation mobile">
               <ul className="space-y-1">
-                {navItems.map((link, idx) => {
+                {mobileNavItems.map((link, idx) => {
                   const isActive = activeSection === link.href.slice(1)
                   return (
                     <li key={link.href}>

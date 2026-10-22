@@ -120,6 +120,31 @@ html.theme-light .text-slate-500 {
   color: #64748b !important;
 }
 
+/* Conformité WCAG AA (Ratio >= 4.5:1) : Textes bleus contrastés sur fond clair */
+html.theme-light .text-blue-400 {
+  color: #1d4ed8 !important;
+}
+
+html.theme-light .text-blue-300 {
+  color: #1e40af !important;
+}
+
+html.theme-light .text-blue-500 {
+  color: #1d4ed8 !important;
+}
+
+/* Badges et pastilles tech en mode clair (fond doux #eff6ff, bordure discrète #bfdbfe) */
+html.theme-light .bg-blue-500\/10,
+html.theme-light .bg-blue-600\/10,
+html.theme-light .bg-blue-600\/15 {
+  background-color: #eff6ff !important;
+}
+
+html.theme-light .border-blue-500\/20,
+html.theme-light .border-blue-500\/30 {
+  border-color: #bfdbfe !important;
+}
+
 /* EXCEPTIONS CRITIQUES : Sur fond bleu primaire, le texte et icônes restent BLANCS purs */
 html.theme-light .bg-blue-600,
 html.theme-light .bg-blue-500,

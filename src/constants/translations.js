@@ -7,12 +7,12 @@ export const TRANSLATIONS = {
     // Navigation
     nav: {
       home: 'Accueil',
-      about: 'À propos',
-      engineering: 'Règles GL',
-      skills: 'Compétences',
-      services: 'Services',
       projects: 'Projets',
+      skills: 'Compétences',
+      about: 'À propos',
       timeline: 'Parcours',
+      engineering: 'Méthodologie',
+      services: 'Services',
       certifications: 'Certifications',
       contact: 'Contact',
       cvFr: 'CV (FR)',
@@ -24,19 +24,19 @@ export const TRANSLATIONS = {
 
     // Hero
     hero: {
-      status: 'OPEN FOR WORK',
-      statusSub: 'Stage & Opportunités 2026',
-      role: 'Développeur Full Stack • React • TypeScript • DevOps',
+      status: 'RECHERCHE DE STAGE',
+      statusSub: 'Disponible en 2025/2026',
+      role: 'Développeur Full Stack — Web & Mobile',
       tagline:
-        "Étudiant en 3e année (L3) Informatique, passionné par le développement web et mobile, à la recherche de stages et d'opportunités professionnelles.",
-      exploreProjects: 'Explorer mes projets',
+        "Étudiant en L3 Informatique à l'EMIT Fianarantsoa, je conçois des applications web et mobiles performantes, robustes et maintenables. Prêt à créer de la valeur concrète au sein de votre équipe technique.",
+      exploreProjects: 'Voir mes projets',
       downloadCv: 'Télécharger mon CV',
       contactMe: 'Me contacter',
-      discover: 'Découvrir',
-      activeStatus: 'Actif',
+      discover: 'Explorer',
+      activeStatus: 'Disponible',
       yearsExp: "Années d'expérience",
       projectsCount: 'Projets réalisés',
-      techsCount: 'Technologies',
+      techsCount: 'Technologies maîtrisées',
     },
 
     // Manifesto
@@ -234,12 +234,12 @@ export const TRANSLATIONS = {
     // Navigation
     nav: {
       home: 'Home',
-      about: 'About',
-      engineering: 'SE Rules',
-      skills: 'Skills',
-      services: 'Services',
       projects: 'Projects',
+      skills: 'Skills',
+      about: 'About',
       timeline: 'Timeline',
+      engineering: 'Methodology',
+      services: 'Services',
       certifications: 'Certifications',
       contact: 'Contact',
       cvFr: 'Resume (FR)',
@@ -251,19 +251,19 @@ export const TRANSLATIONS = {
 
     // Hero
     hero: {
-      status: 'OPEN FOR WORK',
-      statusSub: 'Internship & Opportunities 2026',
-      role: 'Full Stack Software Engineer • React • TypeScript • DevOps',
+      status: 'SEEKING INTERNSHIP',
+      statusSub: 'Available 2025/2026',
+      role: 'Full Stack Software Engineer — Web & Mobile',
       tagline:
-        '3rd-year Computer Science student passionate about web & mobile engineering, seeking internship and professional software engineering opportunities.',
-      exploreProjects: 'Explore projects',
+        '3rd-year CS student at EMIT Fianarantsoa, engineering performant, scalable, and maintainable web & mobile applications. Ready to deliver concrete value to your engineering team.',
+      exploreProjects: 'View my projects',
       downloadCv: 'Download Resume',
       contactMe: 'Contact me',
-      discover: 'Discover',
-      activeStatus: 'Active',
+      discover: 'Explore',
+      activeStatus: 'Available',
       yearsExp: 'Years Experience',
       projectsCount: 'Completed Projects',
-      techsCount: 'Technologies',
+      techsCount: 'Mastered Techs',
     },
 
     // Manifesto
