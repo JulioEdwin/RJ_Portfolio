@@ -52,6 +52,9 @@ body {
 
 /* =========================================================================
    THÈME CLAIR (LIGHT MODE) — MÊME PALETTE À 3 COULEURS EN CONTRASTE INVERSÉ
+   1. Primaire : Bleu Tech (#2563eb / #1d4ed8)
+   2. Fond & Cartes : Blanc & Slate Clair (#ffffff / #f8fafc / #f1f5f9)
+   3. Texte & Encre : Slate Foncé & Noir Ardoise (#0f172a / #1e293b / #475569)
    ========================================================================= */
 html.theme-light {
   color-scheme: light;
@@ -66,11 +69,13 @@ html.theme-light body {
   color: #0f172a;
 }
 
+/* Arrière-plans de sections et surfaces */
 html.theme-light .bg-slate-950 {
   background-color: #f8fafc !important;
 }
 
 html.theme-light .bg-slate-900,
+html.theme-light .bg-slate-900\/95,
 html.theme-light .bg-slate-900\/90,
 html.theme-light .bg-slate-900\/80,
 html.theme-light .bg-slate-900\/70,
@@ -85,16 +90,18 @@ html.theme-light .bg-slate-950\/85,
 html.theme-light .bg-slate-950\/70,
 html.theme-light .bg-slate-950\/60,
 html.theme-light .bg-slate-950\/40 {
-  background-color: rgba(255, 255, 255, 0.92) !important;
+  background-color: rgba(255, 255, 255, 0.96) !important;
 }
 
 html.theme-light .bg-slate-800,
 html.theme-light .bg-slate-800\/80,
 html.theme-light .bg-slate-800\/60,
+html.theme-light .bg-slate-800\/50,
 html.theme-light .bg-slate-800\/40 {
   background-color: #f1f5f9 !important;
 }
 
+/* Textes sombres sur fond clair par défaut */
 html.theme-light .text-white {
   color: #0f172a !important;
 }
@@ -113,6 +120,18 @@ html.theme-light .text-slate-500 {
   color: #64748b !important;
 }
 
+/* EXCEPTIONS CRITIQUES : Sur fond bleu primaire, le texte et icônes restent BLANCS purs */
+html.theme-light .bg-blue-600,
+html.theme-light .bg-blue-500,
+html.theme-light .bg-blue-700,
+html.theme-light .bg-blue-600 *,
+html.theme-light .bg-blue-500 *,
+html.theme-light button.bg-blue-600,
+html.theme-light a.bg-blue-600 {
+  color: #ffffff !important;
+}
+
+/* Bordures adaptées au mode clair */
 html.theme-light .border-slate-800,
 html.theme-light .border-slate-800\/80,
 html.theme-light .border-slate-800\/60,
@@ -124,6 +143,102 @@ html.theme-light .border-slate-700,
 html.theme-light .border-slate-700\/80,
 html.theme-light .border-slate-700\/60 {
   border-color: #cbd5e1 !important;
+}
+
+/* Champs de formulaires en mode clair */
+html.theme-light input,
+html.theme-light textarea {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.theme-light input::placeholder,
+html.theme-light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+html.theme-light input:focus,
+html.theme-light textarea:focus {
+  border-color: #2563eb !important;
+  background-color: #ffffff !important;
+}
+
+/* Notifications Toast en mode clair */
+html.theme-light .toast-notification,
+html.theme-light [role="status"] {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.12), 0 8px 10px -6px rgba(15, 23, 42, 0.08) !important;
+}
+
+html.theme-light .toast-notification .toast-text,
+html.theme-light .toast-notification p {
+  color: #0f172a !important;
+}
+
+html.theme-light .toast-notification .toast-icon {
+  color: #2563eb !important;
+}
+
+/* Messages de statut du formulaire de Contact */
+html.theme-light .contact-status-success {
+  background-color: #eff6ff !important;
+  border-color: #bfdbfe !important;
+}
+
+html.theme-light .contact-status-success p {
+  color: #1e40af !important;
+}
+
+html.theme-light .contact-status-success svg {
+  color: #2563eb !important;
+}
+
+html.theme-light .contact-status-error {
+  background-color: #fef2f2 !important;
+  border-color: #fecaca !important;
+}
+
+html.theme-light .contact-status-error p {
+  color: #991b1b !important;
+}
+
+html.theme-light .contact-status-error svg {
+  color: #dc2626 !important;
+}
+
+/* Survol & toucher mobile en mode clair (empêche les blocs noirs illisibles) */
+html.theme-light .hover\:bg-slate-900:hover,
+html.theme-light .hover\:bg-slate-900\/80:hover,
+html.theme-light .hover\:bg-slate-800:hover,
+html.theme-light .hover\:bg-slate-800\/80:hover,
+html.theme-light .hover\:bg-slate-800\/60:hover,
+html.theme-light .hover\:bg-slate-800\/50:hover,
+html.theme-light .hover\:bg-slate-700:hover,
+html.theme-light .active\:bg-slate-900:active,
+html.theme-light .active\:bg-slate-800:active {
+  background-color: #f1f5f9 !important;
+}
+
+html.theme-light .hover\:text-white:hover {
+  color: #2563eb !important;
+}
+
+html.theme-light .hover\:text-blue-400:hover,
+html.theme-light .hover\:text-blue-500:hover {
+  color: #1d4ed8 !important;
+}
+
+/* Menu Mobile Navigation en mode clair */
+html.theme-light header nav a:not(.bg-blue-600) {
+  color: #334155;
+}
+
+html.theme-light header nav a:not(.bg-blue-600):hover,
+html.theme-light header nav a:not(.bg-blue-600):active {
+  background-color: #f1f5f9 !important;
+  color: #2563eb !important;
 }
 
 html.theme-light .text-outline-tech {
@@ -222,14 +337,20 @@ html.theme-light ::-webkit-scrollbar-thumb {
 /* Révélation au défilement optimisée */
 .scroll-reveal {
   opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(20px);
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
 
 .scroll-reveal.revealed {
-  opacity: 1;
-  transform: translateY(0);
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+html.reduced-motion .scroll-reveal {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
 }
 
 /* Animations clés */

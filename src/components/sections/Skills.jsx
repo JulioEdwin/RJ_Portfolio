@@ -103,8 +103,7 @@ const Skills = () => {
             return (
               <div
                 key={category.title}
-                className="scroll-reveal"
-                style={{ transitionDelay: `${(index % 3) * 70}ms` }}
+                className="transition-all duration-300"
               >
                 <Card className="h-full flex flex-col justify-between">
                   <div>

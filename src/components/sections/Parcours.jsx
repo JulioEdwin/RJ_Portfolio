@@ -120,8 +120,7 @@ const Parcours = () => {
             return (
               <div
                 key={`${item.title}-${item.period}`}
-                className="scroll-reveal relative group"
-                style={{ transitionDelay: `${index * 60}ms` }}
+                className="relative group transition-all duration-300"
               >
                 {/* Pastille sur la ligne */}
                 <div

@@ -330,8 +330,7 @@ const Projects = () => {
             {filteredProjects.map((project, index) => (
               <article
                 key={project.id}
-                className="scroll-reveal group flex flex-col justify-between p-6 rounded-2xl bg-slate-900/70 border border-slate-800/80 hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-950/40 transition-all duration-300"
-                style={{ transitionDelay: `${(index % 3) * 60}ms` }}
+                className="group flex flex-col justify-between p-6 rounded-2xl bg-slate-900/70 border border-slate-800/80 hover:border-blue-500/50 hover:shadow-xl hover:shadow-blue-950/40 transition-all duration-300"
               >
                 <div>
                   {/* Bannière d'en-tête de carte */}

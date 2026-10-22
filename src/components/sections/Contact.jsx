@@ -322,10 +322,10 @@ const Contact = () => {
               </div>
 
               {submitStatus === 'success' && (
-                <div className="p-4 mb-6 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-200 text-xs sm:text-sm flex items-start gap-3">
+                <div className="contact-status-success p-4 mb-6 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-200 text-xs sm:text-sm flex items-start gap-3">
                   <CheckCircle2 size={18} className="text-blue-400 shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-bold">{t.contact.successMsgTitle}</p>
+                    <p className="font-bold text-white">{t.contact.successMsgTitle}</p>
                     <p className="mt-0.5 text-blue-300">
                       {t.contact.successMsgText}
                     </p>
@@ -334,10 +334,10 @@ const Contact = () => {
               )}
 
               {submitStatus === 'error' && (
-                <div className="p-4 mb-6 rounded-xl bg-red-500/10 border border-red-500/30 text-red-200 text-xs sm:text-sm flex items-start gap-3">
+                <div className="contact-status-error p-4 mb-6 rounded-xl bg-red-500/10 border border-red-500/30 text-red-200 text-xs sm:text-sm flex items-start gap-3">
                   <AlertCircle size={18} className="text-red-400 shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-bold">{t.contact.errorMsgTitle}</p>
+                    <p className="font-bold text-white">{t.contact.errorMsgTitle}</p>
                     <p className="mt-0.5 text-red-300">
                       {t.contact.errorMsgText}
                     </p>

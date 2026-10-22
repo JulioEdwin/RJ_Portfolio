@@ -7,9 +7,17 @@ const useScrollReveal = (threshold = 0.1) => {
     const container = containerRef.current
     if (!container) return
 
+    let isContainerRevealed = false
+
+    const revealTarget = (target) => {
+      if (target && !target.classList.contains('revealed')) {
+        target.classList.add('revealed')
+      }
+    }
+
     const targets = container.classList.contains('scroll-reveal')
       ? [container]
-      : container.querySelectorAll('.scroll-reveal')
+      : Array.from(container.querySelectorAll('.scroll-reveal'))
 
     // Chromium inclut le clip-path de l'élément lui-même dans le calcul
     // d'intersection : un .reveal-clip masqué (ratio 0) ne serait jamais
@@ -28,8 +36,9 @@ const useScrollReveal = (threshold = 0.1) => {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
+            isContainerRevealed = true
             const list = observed.get(entry.target) || []
-            list.forEach((target) => target.classList.add('revealed'))
+            list.forEach(revealTarget)
             observer.unobserve(entry.target)
           }
         })
@@ -38,7 +47,38 @@ const useScrollReveal = (threshold = 0.1) => {
     )
 
     observed.forEach((_, el) => observer.observe(el))
-    return () => observer.disconnect()
+
+    // Sécurité dynamique : si des éléments .scroll-reveal sont insérés dynamiquement
+    // (ex: filtrage, changement de recherche, onglets), ils sont immédiatement révélés si la section est déjà visible.
+    const mutationObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === 1) {
+            if (node.classList?.contains('scroll-reveal')) {
+              if (isContainerRevealed) {
+                revealTarget(node)
+              } else {
+                observer.observe(node)
+              }
+            }
+            node.querySelectorAll?.('.scroll-reveal').forEach((el) => {
+              if (isContainerRevealed) {
+                revealTarget(el)
+              } else {
+                observer.observe(el)
+              }
+            })
+          }
+        })
+      })
+    })
+
+    mutationObserver.observe(container, { childList: true, subtree: true })
+
+    return () => {
+      observer.disconnect()
+      mutationObserver.disconnect()
+    }
   }, [threshold])
 
   return containerRef

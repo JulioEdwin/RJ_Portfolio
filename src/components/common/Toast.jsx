@@ -25,16 +25,25 @@ const Toast = ({
   return (
     <div
       className={cn(
-        'fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-xl border shadow-2xl backdrop-blur-xl animate-slideUp transition-all duration-300 max-w-sm',
-        type === 'success' && 'bg-slate-900/95 border-blue-500/50 text-white shadow-blue-500/10',
-        type === 'error' && 'bg-slate-900/95 border-red-500/40 text-slate-100',
-        type === 'info' && 'bg-slate-900/95 border-slate-700 text-white'
+        'toast-notification fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-xl border shadow-2xl backdrop-blur-xl animate-slideUp transition-all duration-300 max-w-sm',
+        type === 'success' && 'bg-slate-900 border-blue-500/50 shadow-blue-500/10',
+        type === 'error' && 'bg-slate-900 border-red-500/40 shadow-red-500/10',
+        type === 'info' && 'bg-slate-900 border-slate-700 shadow-slate-900/10'
       )}
       role="status"
       aria-live="polite"
     >
-      <Icon size={18} className="text-blue-400 shrink-0" aria-hidden="true" />
-      <p className="text-xs sm:text-sm font-medium text-slate-200">{message}</p>
+      <Icon
+        size={18}
+        className={cn(
+          'toast-icon shrink-0',
+          type === 'success' && 'text-blue-400',
+          type === 'error' && 'text-red-400',
+          type === 'info' && 'text-blue-400'
+        )}
+        aria-hidden="true"
+      />
+      <p className="toast-text text-xs sm:text-sm font-medium text-slate-200">{message}</p>
       {onClose && (
         <button
           type="button"

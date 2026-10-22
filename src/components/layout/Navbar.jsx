@@ -183,7 +183,7 @@ const Navbar = () => {
 
       {/* Menu Déroulant Mobile */}
       {isOpen && (
-        <div className="xl:hidden fixed inset-x-0 top-[66px] bg-slate-950/98 backdrop-blur-2xl border-b border-slate-800 max-h-[calc(100vh-4.5rem)] overflow-y-auto animate-fadeIn shadow-2xl">
+        <div className="xl:hidden fixed inset-x-0 top-16 md:top-20 bg-slate-950/98 backdrop-blur-2xl border-b border-slate-800 max-h-[calc(100vh-4rem)] md:max-h-[calc(100vh-5rem)] overflow-y-auto animate-fadeIn shadow-2xl">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-4">
             {/* Raccourci paramètres dans le menu mobile */}
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-900 border border-slate-800">
@@ -214,12 +214,12 @@ const Navbar = () => {
                         onClick={() => setIsOpen(false)}
                         className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
                           isActive
-                            ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
-                            : 'text-slate-300 hover:text-white hover:bg-slate-900'
+                            ? 'bg-blue-600 text-white shadow-md shadow-blue-600/25 font-bold'
+                            : 'text-slate-300 hover:text-blue-400 hover:bg-slate-800/50'
                         }`}
                       >
                         <span>{link.label}</span>
-                        <span className="font-mono text-xs text-slate-500">
+                        <span className={`font-mono text-xs ${isActive ? 'text-blue-100' : 'text-slate-500'}`}>
                           {String(idx + 1).padStart(2, '0')}
                         </span>
                       </a>
@@ -234,7 +234,7 @@ const Navbar = () => {
                 href={profile.cv}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-xs font-semibold hover:bg-slate-800"
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-xs font-semibold hover:bg-slate-800 hover:text-white transition-colors"
               >
                 <FileDown size={16} className="text-blue-400" />
                 {t.nav.cvFr}
@@ -243,7 +243,7 @@ const Navbar = () => {
                 href={profile.cvEn}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-xs font-semibold hover:bg-slate-800"
+                className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-xs font-semibold hover:bg-slate-800 hover:text-white transition-colors"
               >
                 <FileDown size={16} className="text-blue-400" />
                 {t.nav.cvEn}
